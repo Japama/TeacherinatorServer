@@ -1,30 +1,55 @@
 use modql::field::{Field, Fields, HasFields};
+use modql::filter::{FilterNodes, ListOptions, OpValsBool, OpValsInt64, OpValsString, OpValsValue};
 use sea_query::{Expr, Iden, PostgresQueryBuilder, Query};
 use sea_query_binder::SqlxBinder;
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use sqlx::FromRow;
 use sqlx::postgres::PgRow;
 use uuid::Uuid;
 
 use lib_auth::pwd::{self, ContentToHash};
-
+use crate::model::modql_utils::time_to_sea_value;
 use crate::ctx::Ctx;
 use crate::model::base::{self, add_timestamps_for_update, PostgresDbBmc};
 use crate::model::ModelManager;
 use crate::model::Result;
 
 // region:    --- User Types
-#[derive(Clone, Fields, FromRow, Debug, Serialize)]
+#[serde_as]
+#[derive(Debug, Clone, Fields, FromRow, Serialize)]
 pub struct User {
     pub id: i64,
     pub username: String,
+    pub isadmin: bool
 }
 
-#[derive(Deserialize)]
+#[derive(Fields, Deserialize, Clone)]
 pub struct UserForCreate {
     pub username: String,
-    pub pwd_clear: String,
+    pub isadmin: bool,
+    pub pwd: String,
 }
+
+#[derive(FilterNodes, Deserialize, Default, Debug)]
+pub struct UserFilter {
+    id: Option<OpValsInt64>,
+    username: Option<OpValsString>,
+    isadmin: Option<OpValsBool>,
+
+    cid: Option<OpValsInt64>,
+    #[modql(to_sea_value_fn = "time_to_sea_value")]
+    ctime: Option<OpValsValue>,
+    mid: Option<OpValsInt64>,
+    #[modql(to_sea_value_fn = "time_to_sea_value")]
+    mtime: Option<OpValsValue>,
+}
+
+#[derive(Fields, Default, Deserialize)]
+pub struct UserForUpdate {
+    pub username: String,
+}
+
 
 #[derive(Fields)]
 pub struct UserForInsert {
@@ -74,10 +99,15 @@ impl PostgresDbBmc for UserBmc {
 }
 
 impl UserBmc {
+    pub async fn create(ctx: &Ctx, mm: &ModelManager, user_c: UserForCreate) -> Result<i64> {
+        base::create::<Self, _>(ctx, mm, user_c).await
+    }
+
     pub async fn get<E>(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<E>
     where
         E: UserBy,
     {
+
         base::get::<Self, _>(ctx, mm, id).await
     }
 
@@ -139,17 +169,40 @@ impl UserBmc {
 
         Ok(())
     }
+
+    pub async fn list(
+        ctx: &Ctx,
+        mm: &ModelManager,
+        filters: Option<Vec<UserFilter>>,
+        list_options: Option<ListOptions>,
+    ) -> Result<Vec<User>> {
+        base::list::<Self, _, _>(ctx, mm, filters, list_options).await
+    }
+
+
+    pub async fn update(
+        ctx: &Ctx,
+        mm: &ModelManager,
+        id: i64,
+        user_u: UserForUpdate,
+    ) -> Result<()> {
+        base::update::<Self, _>(ctx, mm, id, user_u).await
+    }
+
+    pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
+        base::delete::<Self>(ctx, mm, id).await
+    }
 }
 
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
     use anyhow::{Context, Result};
+    use serde_json::json;
     use serial_test::serial;
-
     use crate::_dev_utils;
     use crate::ctx::Ctx;
-    use crate::model::user::{User, UserBmc};
+    use crate::model::user::{User, UserBmc, UserForCreate, UserForUpdate};
 
     #[serial]
     #[tokio::test]
@@ -166,6 +219,102 @@ mod tests {
 
         // -- Check
         assert_eq!(user.username, fx_username);
+
+        Ok(())
+    }
+    
+    #[serial]
+    #[tokio::test]
+    async fn test_create_ok() -> Result<()> {
+        // -- Setup & Fixtures
+        let mm = _dev_utils::init_test().await;
+        let ctx = Ctx::root_ctx();
+        let fx_username = "Prueba_Crear";
+        let fx_pwd ="Contraseña";
+
+
+        // -- Exec
+        let user_c = UserForCreate {
+            username: fx_username.to_string(),
+            pwd: fx_pwd.to_string(),
+            isadmin: false
+        };
+
+        let id = UserBmc::create(&ctx, &mm, user_c).await?;
+
+        // -- Check
+        let user: User = UserBmc::get(&ctx, &mm, id).await?;
+        assert_eq!(user.username, fx_username);
+
+        // -- Clean
+        UserBmc::delete(&ctx, &mm, id).await?;
+
+        Ok(())
+    }
+    
+    #[serial]
+    #[tokio::test]
+    async fn test_update_ok() -> Result<()> {
+        // -- Setup & Fixtures
+        let mm = _dev_utils::init_test().await;
+        let ctx = Ctx::root_ctx();
+        let fx_username = "Juanba test update";
+        let fx_username_new = "Juanba test update Petao";
+        let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
+
+        // -- Exec
+        UserBmc::update(
+            &ctx,
+            &mm,
+            fx_user_id,
+            UserForUpdate {
+                username: fx_username_new.to_string(),
+            },
+        )
+            .await?;
+
+        // -- Check
+        let user: User = UserBmc::get(&ctx, &mm, fx_user_id).await?;
+        assert_eq!(user.username, fx_username_new);
+
+        // -- Clean
+        UserBmc::delete(&ctx, &mm, fx_user_id).await?;
+
+        Ok(())
+    }
+
+    #[serial]
+    #[tokio::test]
+    async fn test_list_by_name_ok() -> Result<()> {
+        // -- Setup & Fixtures
+        let mm = _dev_utils::init_test().await;
+        let ctx = Ctx::root_ctx();
+        let fx_usernames = &[
+            "Juanba test list",
+            "Marta test list",
+            "Amalia test list",
+        ];
+        let fx_id_01 = _dev_utils::seed_user(&ctx, &mm, fx_usernames[0]).await?;
+        let fx_id_02 = _dev_utils::seed_user(&ctx, &mm, fx_usernames[1]).await?;
+        let fx_id_03 = _dev_utils::seed_user(&ctx, &mm, fx_usernames[2]).await?;
+
+        // -- Exec
+        let filter_json = json!({
+            "username": {"$contains": "test list"}, // time in Rfc3339
+        });
+        let filter = vec![serde_json::from_value(filter_json)?];
+
+        let users = UserBmc::list(&ctx, &mm, Some(filter), None).await?;
+
+        // -- Check
+        let usernames: Vec<String> = users.into_iter().map(|u| u.username).collect();
+        assert_eq!(usernames.len(), 3);
+        assert_eq!(&usernames, fx_usernames);
+
+        // -- Cleanup
+        UserBmc::delete(&ctx, &mm, fx_id_01).await?;
+        UserBmc::delete(&ctx, &mm, fx_id_02).await?;
+        UserBmc::delete(&ctx, &mm, fx_id_03).await?;
 
         Ok(())
     }

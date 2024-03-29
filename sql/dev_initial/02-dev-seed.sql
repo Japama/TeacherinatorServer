@@ -5,7 +5,7 @@ INSERT INTO "users"
     (id, username, cid, ctime, mid, mtime)
 VALUES (0, 'root', 0, now(), 0, now());
 
-INSERT INTO "users" (username, usertypeadmin, cid, ctime, mid, mtime)
+INSERT INTO "users" (username, isadmin, cid, ctime, mid, mtime)
 VALUES ('admin', true, 0, now(), 0, now());
 INSERT INTO "users" (username, cid, ctime, mid, mtime)
 VALUES ('profesor1', 0, now(), 0, now());
@@ -25,7 +25,7 @@ INSERT INTO "users" (username, cid, ctime, mid, mtime)
 VALUES ('profesor8', 0, now(), 0, now());
 INSERT INTO "users" (username, cid, ctime, mid, mtime)
 VALUES ('profesor9', 0, now(), 0, now());
-INSERT INTO "users" (username, usertypeadmin, cid, ctime, mid, mtime)
+INSERT INTO "users" (username, isadmin, cid, ctime, mid, mtime)
 VALUES ('secretaria1', true, 0, now(), 0, now());
 
 -- Specialties

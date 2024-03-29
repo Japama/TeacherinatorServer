@@ -23,3 +23,4 @@ serde_with = "3"
 modql = { version = "0.3.4", features = ["with-sea-query"] }
 # -- Others
 derive_more = { version = "1.0.0-beta", features = ["from"] }
+log = "0.4.20"

@@ -27,10 +27,10 @@ mod base;
 mod error;
 pub mod modql_utils;
 pub mod project;
-pub mod sport;
 mod store;
 pub mod task;
 pub mod user;
+pub mod specialty;
 
 // endregion: --- Modules
 

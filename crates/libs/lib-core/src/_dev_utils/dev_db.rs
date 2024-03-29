@@ -43,7 +43,9 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
     {
         let sql_recreate_db_file = sql_dir.join(SQL_RECREATE_DB_FILE_NAME);
         let root_db = new_db_pool(PG_DEV_POSTGRES_URL).await?;
+
         pexec(&root_db, &sql_recreate_db_file).await?;
+
     }
 
     // -- Get sql files.
@@ -72,6 +74,7 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
         .await?
         .unwrap();
     UserBmc::update_pwd(&ctx, &mm, admin_user.id, DEMO_PWD).await?;
+
     info!("{:<12} - init_dev_db - set admin pwd", "FOR-DEV-ONLY");
 
     Ok(())

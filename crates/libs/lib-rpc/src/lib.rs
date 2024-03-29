@@ -9,7 +9,6 @@ pub use self::error::{Error, Result};
 
 mod error;
 mod params;
-mod params_mongo;
 mod resources;
 pub mod router;
 mod rpcs;

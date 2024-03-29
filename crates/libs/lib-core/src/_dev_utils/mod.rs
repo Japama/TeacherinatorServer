@@ -6,7 +6,9 @@ use tracing::info;
 use crate::ctx::Ctx;
 use crate::model::{self, ModelManager};
 use crate::model::project::{ProjectBmc, ProjectForCreate};
+use crate::model::specialty::{SpecialtyBmc, SpecialtyForCreate};
 use crate::model::task::{Task, TaskBmc, TaskForCreate};
+use crate::model::user::{UserBmc, UserForCreate};
 
 mod dev_db;
 
@@ -71,6 +73,30 @@ pub async fn seed_project(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Re
         mm,
         ProjectForCreate {
             name: name.to_string(),
+        },
+    )
+        .await
+}
+
+pub async fn seed_user(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Result<i64> {
+    UserBmc::create(
+        ctx,
+        mm,
+        UserForCreate {
+            username: name.to_string(),
+            pwd: "pwd".to_string(),
+            isadmin: false
+        },
+    )
+        .await
+}
+
+pub async fn seed_specialty(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Result<i64> {
+    SpecialtyBmc::create(
+        ctx,
+        mm,
+        SpecialtyForCreate {
+            name: name.to_string()
         },
     )
         .await
