@@ -6,9 +6,10 @@ use tracing::info;
 use crate::ctx::Ctx;
 use crate::model::{self, ModelManager};
 use crate::model::project::{ProjectBmc, ProjectForCreate};
-use crate::model::specialty::{SpecialtyBmc, SpecialtyForCreate};
+use crate::model::department::{DepartmentBmc, DepartmentForCreate};
 use crate::model::task::{Task, TaskBmc, TaskForCreate};
 use crate::model::user::{UserBmc, UserForCreate};
+use crate::model::teacher::{TeacherBmc, TeacherForCreate};
 
 mod dev_db;
 
@@ -91,12 +92,37 @@ pub async fn seed_user(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Resul
         .await
 }
 
-pub async fn seed_specialty(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Result<i64> {
-    SpecialtyBmc::create(
+pub async fn seed_department(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Result<i64> {
+    DepartmentBmc::create(
         ctx,
         mm,
-        SpecialtyForCreate {
+        DepartmentForCreate {
             name: name.to_string()
+        },
+    )
+        .await
+}
+
+
+pub async fn seed_teacher(ctx: &Ctx, mm: &ModelManager, name: &str , department_id: i64) -> model::Result<i64> {
+    let user_id = UserBmc::create(
+        ctx,
+        mm,
+        UserForCreate {
+            username: name.to_string(),
+            pwd: "pwd".to_string(),
+            isadmin: false
+        },
+    ).await?;
+    
+    TeacherBmc::create(
+        ctx,
+        mm,
+        TeacherForCreate {
+            name: name.to_string(),
+            active: true,
+            department_id,
+            user_id,
         },
     )
         .await

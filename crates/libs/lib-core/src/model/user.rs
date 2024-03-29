@@ -176,7 +176,7 @@ impl UserBmc {
         filters: Option<Vec<UserFilter>>,
         list_options: Option<ListOptions>,
     ) -> Result<Vec<User>> {
-        base::list::<Self, _, _>(ctx, mm, filters, list_options).await
+         base::list::<Self, _, _>(ctx, mm, filters, list_options).await
     }
 
 

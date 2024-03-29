@@ -30,7 +30,8 @@ pub mod project;
 mod store;
 pub mod task;
 pub mod user;
-pub mod specialty;
+pub mod department;
+pub mod teacher;
 
 // endregion: --- Modules
 
