@@ -32,6 +32,7 @@ pub mod task;
 pub mod user;
 pub mod department;
 pub mod teacher;
+pub mod subject;
 
 // endregion: --- Modules
 

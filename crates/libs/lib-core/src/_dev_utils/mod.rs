@@ -7,6 +7,7 @@ use crate::ctx::Ctx;
 use crate::model::{self, ModelManager};
 use crate::model::project::{ProjectBmc, ProjectForCreate};
 use crate::model::department::{DepartmentBmc, DepartmentForCreate};
+use crate::model::subject::{SubjectBmc, SubjectForCreate};
 use crate::model::task::{Task, TaskBmc, TaskForCreate};
 use crate::model::user::{UserBmc, UserForCreate};
 use crate::model::teacher::{TeacherBmc, TeacherForCreate};
@@ -114,7 +115,7 @@ pub async fn seed_teacher(ctx: &Ctx, mm: &ModelManager, name: &str , department_
             isadmin: false
         },
     ).await?;
-    
+
     TeacherBmc::create(
         ctx,
         mm,
@@ -123,6 +124,20 @@ pub async fn seed_teacher(ctx: &Ctx, mm: &ModelManager, name: &str , department_
             active: true,
             department_id,
             user_id,
+        },
+    )
+        .await
+}
+
+pub async fn seed_subject(ctx: &Ctx, mm: &ModelManager, name: &str, department_id: i64, is_guard: bool, is_complementary: bool) -> model::Result<i64> {
+    SubjectBmc::create(
+        ctx,
+        mm,
+        SubjectForCreate {
+            name: name.to_string(),
+            department_id,
+            is_guard,
+            is_complementary
         },
     )
         .await

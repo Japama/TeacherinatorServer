@@ -53,12 +53,6 @@ pub struct TeacherForUpdate {
     pub department_id: i64
 }
 
-
-#[derive(Fields)]
-pub struct TeacherForInsert {
-    pub name: String,
-}
-
 /// Marker trait
 pub trait TeacherBy: HasFields + for<'r> FromRow<'r, PgRow> + Unpin + Send {}
 
