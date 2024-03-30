@@ -105,13 +105,14 @@ impl TeacherBmc {
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
-    use anyhow::{Context, Result};
+    use anyhow::{Result};
     use serde_json::json;
     use serial_test::serial;
     use crate::_dev_utils;
     use crate::ctx::Ctx;
+    use crate::model::department::DepartmentBmc;
     use crate::model::teacher::{Teacher, TeacherBmc, TeacherForCreate, TeacherForUpdate};
-    use crate::model::user::{UserBmc, UserForCreate};
+    use crate::model::user::{UserBmc};
 
     #[serial]
     #[tokio::test]
@@ -120,22 +121,18 @@ mod tests {
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
         let fx_name = "Informática";
-
-        let user = UserForCreate{
-            username: "prueba".to_string(),
-            pwd: "".to_string(),
-            isadmin: false
-        };
-
-        let user_id = UserBmc::create(&ctx, &mm, user).await?;
-
+        let fx_username = "Pepito";
+        let fx_department_name = "Informática";
+        
+        let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
+        let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
 
         // -- Exec
         let teacher_c = TeacherForCreate {
             name: fx_name.to_string(),
             active: true,
-            department_id: 1001,
-            user_id
+            department_id: fx_department_id,
+            user_id: fx_user_id
         };
 
         let id = TeacherBmc::create(&ctx, &mm, teacher_c).await?;
@@ -146,7 +143,8 @@ mod tests {
 
         // -- Clean
         TeacherBmc::delete(&ctx, &mm, id).await?;
-
+        UserBmc::delete(&ctx, &mm, fx_user_id).await?;
+        
         Ok(())
     }
     
@@ -158,7 +156,11 @@ mod tests {
         let ctx = Ctx::root_ctx();
         let fx_name = "Prueba";
         let fx_name_new = "Resultado prueba";
-        let fx_teacher_id = _dev_utils::seed_teacher(&ctx, &mm, fx_name, 1001).await?;
+        let fx_username = "Usuario";
+        let fx_department_name= "Departamento";
+        let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
+        let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
+        let fx_teacher_id = _dev_utils::seed_teacher(&ctx, &mm, fx_name, fx_department_id, fx_user_id).await?;
 
         // -- Exec
         TeacherBmc::update(
@@ -166,9 +168,9 @@ mod tests {
             &mm,
             fx_teacher_id,
             TeacherForUpdate {
-                user_id: 1001,
+                user_id: fx_user_id,
                 active: true,
-                department_id: 1001,
+                department_id: fx_department_id,
                 name: fx_name_new.to_string(),
             },
         )
@@ -180,6 +182,8 @@ mod tests {
 
         // -- Clean
         TeacherBmc::delete(&ctx, &mm, fx_teacher_id).await?;
+        DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
+        UserBmc::delete(&ctx, &mm, fx_user_id).await?;
 
         Ok(())
     }
@@ -194,8 +198,19 @@ mod tests {
             "Prueba",
             "Prueba2"
         ];
-        let fx_id_01 = _dev_utils::seed_teacher(&ctx, &mm, fx_names[0], 1001).await?;
-        let fx_id_02 = _dev_utils::seed_teacher(&ctx, &mm, fx_names[1], 1001).await?;
+        let fx_usernames = &[
+            "Prueba",
+            "Prueba2"
+        ];
+
+        let fx_department_name= "Departamento";
+        let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
+
+        let fx_user_id_01 = _dev_utils::seed_user(&ctx, &mm, fx_usernames[0]).await?;
+        let fx_user_id_02 = _dev_utils::seed_user(&ctx, &mm, fx_usernames[1]).await?;
+
+        let fx_id_01 = _dev_utils::seed_teacher(&ctx, &mm, fx_names[0], fx_department_id, fx_user_id_01).await?;
+        let fx_id_02 = _dev_utils::seed_teacher(&ctx, &mm, fx_names[1], fx_department_id, fx_user_id_02).await?;
 
         // -- Exec
         let filter_json = json!({
@@ -213,7 +228,10 @@ mod tests {
         // -- Cleanup
         TeacherBmc::delete(&ctx, &mm, fx_id_01).await?;
         TeacherBmc::delete(&ctx, &mm, fx_id_02).await?;
-
+        UserBmc::delete(&ctx, &mm, fx_user_id_01).await?;
+        UserBmc::delete(&ctx, &mm, fx_user_id_02).await?;
+        DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
+        
         Ok(())
     }
 }

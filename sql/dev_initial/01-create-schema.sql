@@ -80,7 +80,8 @@ CREATE TABLE "groups"
     stage    int                      NOT NULL,
     year     int                      NOT NULL,
     letter   varchar(10)              NOT NULL,
-    tutor_id int                      NOT NULL,
+    tutor_id BIGINT                   NOT NULL,
+
     -- Timestamps
     cid      bigint                   NOT NULL,
     ctime    timestamp with time zone NOT NULL,

@@ -7,6 +7,7 @@ use crate::ctx::Ctx;
 use crate::model::{self, ModelManager};
 use crate::model::project::{ProjectBmc, ProjectForCreate};
 use crate::model::department::{DepartmentBmc, DepartmentForCreate};
+use crate::model::group::{GroupBmc, GroupForCreate};
 use crate::model::subject::{SubjectBmc, SubjectForCreate};
 use crate::model::task::{Task, TaskBmc, TaskForCreate};
 use crate::model::user::{UserBmc, UserForCreate};
@@ -105,17 +106,7 @@ pub async fn seed_department(ctx: &Ctx, mm: &ModelManager, name: &str) -> model:
 }
 
 
-pub async fn seed_teacher(ctx: &Ctx, mm: &ModelManager, name: &str , department_id: i64) -> model::Result<i64> {
-    let user_id = UserBmc::create(
-        ctx,
-        mm,
-        UserForCreate {
-            username: name.to_string(),
-            pwd: "pwd".to_string(),
-            isadmin: false
-        },
-    ).await?;
-
+pub async fn seed_teacher(ctx: &Ctx, mm: &ModelManager, name: &str , department_id: i64, user_id: i64) -> model::Result<i64> {
     TeacherBmc::create(
         ctx,
         mm,
@@ -138,6 +129,22 @@ pub async fn seed_subject(ctx: &Ctx, mm: &ModelManager, name: &str, department_i
             department_id,
             is_guard,
             is_complementary
+        },
+    )
+        .await
+}
+
+
+pub async fn seed_group(ctx: &Ctx, mm: &ModelManager, letter: &str, course: i32, stage: i32, year: i32, tutor_id: i64) -> model::Result<i64> {
+    GroupBmc::create(
+        ctx,
+        mm,
+        GroupForCreate {
+            course,
+            stage,
+            year,
+            tutor_id,
+            letter: letter.to_string(),
         },
     )
         .await

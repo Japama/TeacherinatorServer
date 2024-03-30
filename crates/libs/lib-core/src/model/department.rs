@@ -99,7 +99,7 @@ impl DepartmentBmc {
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
-    use anyhow::{Context, Result};
+    use anyhow::{Result};
     use serde_json::json;
     use serial_test::serial;
     use crate::_dev_utils;

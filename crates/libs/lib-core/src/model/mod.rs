@@ -33,6 +33,7 @@ pub mod user;
 pub mod department;
 pub mod teacher;
 pub mod subject;
+pub mod group;
 
 // endregion: --- Modules
 

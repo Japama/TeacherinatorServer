@@ -105,14 +105,13 @@ impl SubjectBmc {
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
-    use anyhow::{Context, Result};
+    use anyhow::{Result};
     use serde_json::json;
     use serial_test::serial;
     use crate::_dev_utils;
     use crate::ctx::Ctx;
     use crate::model::department::{DepartmentBmc, DepartmentForCreate};
     use crate::model::subject::{Subject, SubjectBmc, SubjectForCreate, SubjectForUpdate};
-    use crate::model::user::{UserBmc, UserForCreate};
 
     #[serial]
     #[tokio::test]
@@ -188,7 +187,8 @@ mod tests {
 
         // -- Clean
         SubjectBmc::delete(&ctx, &mm, fx_subject_id).await?;
-
+        DepartmentBmc::delete(&ctx, &mm, department_id).await?;
+        
         Ok(())
     }
 
