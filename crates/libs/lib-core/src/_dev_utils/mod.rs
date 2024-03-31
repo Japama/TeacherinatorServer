@@ -5,6 +5,7 @@ use tracing::info;
 
 use crate::ctx::Ctx;
 use crate::model::{self, ModelManager};
+use crate::model::classroom::{ClassroomBmc, ClassroomForCreate};
 use crate::model::project::{ProjectBmc, ProjectForCreate};
 use crate::model::department::{DepartmentBmc, DepartmentForCreate};
 use crate::model::group::{GroupBmc, GroupForCreate};
@@ -145,6 +146,23 @@ pub async fn seed_group(ctx: &Ctx, mm: &ModelManager, letter: &str, course: i32,
             year,
             tutor_id,
             letter: letter.to_string(),
+        },
+    )
+        .await
+}
+
+
+pub async fn seed_classroom(ctx: &Ctx, mm: &ModelManager, building: &str, floor: i32, number: i32, name: &str, type_c: i32, description: &str)  -> model::Result<i64> {
+    ClassroomBmc::create(
+        ctx,
+        mm,
+        ClassroomForCreate {
+            building: building.to_string(),
+            floor,
+            number,
+            name: name.to_string(),
+            type_c,
+            description: description.to_string(),
         },
     )
         .await

@@ -100,8 +100,8 @@ VALUES (2023, 1, 1, 'A', 1000, 0, now(), 0, now());
 INSERT INTO "groups" (course, stage, year, letter, tutor_id, cid, ctime, mid, mtime)
 VALUES (2023, 1, 1, 'B', 1001, 0, now(), 0, now());
 
--- Room
-INSERT INTO "room" (building, floor, number, name, type, description, cid, ctime, mid, mtime)
+-- Classroom
+INSERT INTO "classrooms" (building, floor, number, name, type_c, description, cid, ctime, mid, mtime)
 VALUES ('Edificio1', 0, 1, 'Sala 1', 0, 'Habitación normal', 0, now(), 0, now());
 
 -- GuardType
