@@ -35,6 +35,7 @@ pub mod teacher;
 pub mod subject;
 pub mod group;
 pub mod classroom;
+pub mod schedule;
 
 // endregion: --- Modules
 

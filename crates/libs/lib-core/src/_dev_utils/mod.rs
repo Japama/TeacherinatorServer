@@ -9,6 +9,7 @@ use crate::model::classroom::{ClassroomBmc, ClassroomForCreate};
 use crate::model::project::{ProjectBmc, ProjectForCreate};
 use crate::model::department::{DepartmentBmc, DepartmentForCreate};
 use crate::model::group::{GroupBmc, GroupForCreate};
+use crate::model::schedule::{ScheduleBmc, ScheduleForCreate};
 use crate::model::subject::{SubjectBmc, SubjectForCreate};
 use crate::model::task::{Task, TaskBmc, TaskForCreate};
 use crate::model::user::{UserBmc, UserForCreate};
@@ -163,6 +164,19 @@ pub async fn seed_classroom(ctx: &Ctx, mm: &ModelManager, building: &str, floor:
             name: name.to_string(),
             type_c,
             description: description.to_string(),
+        },
+    )
+        .await
+}
+
+pub async fn seed_schedule(ctx: &Ctx, mm: &ModelManager, course: i32, teacher_id: Option<i64>, group_id: Option<i64>)  -> model::Result<i64> {
+    ScheduleBmc::create(
+        ctx,
+        mm,
+        ScheduleForCreate {
+            course,
+            teacher_id,
+            group_id
         },
     )
         .await
