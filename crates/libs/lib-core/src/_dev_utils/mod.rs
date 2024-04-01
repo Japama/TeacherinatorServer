@@ -6,12 +6,10 @@ use tracing::info;
 use crate::ctx::Ctx;
 use crate::model::{self, ModelManager};
 use crate::model::classroom::{ClassroomBmc, ClassroomForCreate};
-use crate::model::project::{ProjectBmc, ProjectForCreate};
 use crate::model::department::{DepartmentBmc, DepartmentForCreate};
 use crate::model::group::{GroupBmc, GroupForCreate};
 use crate::model::schedule::{ScheduleBmc, ScheduleForCreate};
 use crate::model::subject::{SubjectBmc, SubjectForCreate};
-use crate::model::task::{Task, TaskBmc, TaskForCreate};
 use crate::model::user::{UserBmc, UserForCreate};
 use crate::model::teacher::{TeacherBmc, TeacherForCreate};
 
@@ -44,43 +42,6 @@ pub async fn init_test() -> ModelManager {
         .await;
 
     mm.clone()
-}
-
-pub async fn seed_tasks(
-    ctx: &Ctx,
-    mm: &ModelManager,
-    project_id: i64,
-    titles: &[&str],
-) -> model::Result<Vec<Task>> {
-    let mut tasks = Vec::new();
-
-    for title in titles {
-        let id = TaskBmc::create(
-            ctx,
-            mm,
-            TaskForCreate {
-                project_id,
-                title: title.to_string(),
-            },
-        )
-        .await?;
-        let task = TaskBmc::get(ctx, mm, id).await?;
-
-        tasks.push(task);
-    }
-
-    Ok(tasks)
-}
-
-pub async fn seed_project(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Result<i64> {
-    ProjectBmc::create(
-        ctx,
-        mm,
-        ProjectForCreate {
-            name: name.to_string(),
-        },
-    )
-        .await
 }
 
 pub async fn seed_user(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Result<i64> {

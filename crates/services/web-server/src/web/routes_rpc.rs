@@ -7,8 +7,8 @@ use axum::routing::post;
 use serde_json::{json, Value};
 
 use lib_core::model::{ModelManager};
-use lib_rpc::{project_rpc, RpcRequest, RpcResources, department_rpc, task_rpc, user_rpc, teacher_rpc, subject_rpc, group_rpc, classroom_rpc, schedule_rpc};
 use lib_rpc::router::RpcRouter;
+use lib_rpc::{classroom_rpc, department_rpc, group_rpc, RpcRequest, RpcResources, schedule_rpc, subject_rpc, teacher_rpc, user_rpc};
 
 use crate::web::mw_auth::CtxW;
 
@@ -34,8 +34,6 @@ pub fn routes(rpc_state: RpcState) -> Router {
 
     // Build the combined RpcRouter.
     let rpc_router = RpcRouter::new()
-        .extend(task_rpc::rpc_router())
-        .extend(project_rpc::rpc_router())
         .extend(user_rpc::rpc_router())
         .extend(department_rpc::rpc_router())
         .extend(teacher_rpc::rpc_router())

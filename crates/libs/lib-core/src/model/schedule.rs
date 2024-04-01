@@ -15,8 +15,8 @@ use crate::model::Result;
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
 pub struct Schedule {
     pub id: i64,
-    pub teacher_id: i64,
-    pub group_id: i64,
+    pub teacher_id: Option<i64>,
+    pub group_id: Option<i64>,
     pub course: i32,
 }
 
@@ -101,6 +101,7 @@ impl ScheduleBmc {
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
+    use std::iter::Map;
     use std::ptr::null;
     use anyhow::{Result};
     use bson::Bson::Null;
@@ -122,9 +123,9 @@ mod tests {
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
         let fx_course = 2024;
-        let fx_username = "Prueba";
-        let fx_teacher_name = "Profe";
-        let fx_department_name = "Departamento";
+        let fx_username = "Prueba_schedule_create_ok";
+        let fx_teacher_name = "Profe_schedule_create_ok";
+        let fx_department_name = "Departamento_schedule_create_ok";
         
         let fx_user_id = seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id= seed_department(&ctx, &mm, fx_department_name).await?;
@@ -145,9 +146,9 @@ mod tests {
 
         // -- Clean
         ScheduleBmc::delete(&ctx, &mm, id).await?;
-        DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
         TeacherBmc::delete(&ctx, &mm, fx_teacher_id.unwrap()).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
+        DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
 
         Ok(())
     }
@@ -160,9 +161,9 @@ mod tests {
         let ctx = Ctx::root_ctx();
         let fx_course = 2024;
         let fx_course_new = 2025;
-        let fx_username = "Prueba";
-        let fx_teacher_name = "Profe";
-        let fx_department_name = "Departamento";
+        let fx_username = "Prueba_schedule_update_ok";
+        let fx_teacher_name = "Profe_schedule_update_ok";
+        let fx_department_name = "Departamento_schedule_update_ok";
         let fx_group_id = None;
         
         let fx_user_id = seed_user(&ctx, &mm, fx_username).await?;
@@ -195,38 +196,49 @@ mod tests {
 
     #[serial]
     #[tokio::test]
-    async fn test_list_by_name_ok() -> Result<()> {
+    async fn test_list_by_course_ok() -> Result<()> {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_courses = &[2024, 2025] ;
-        let fx_username = "Usuario";
-        let fx_department_name = "Departamento";
-        let fx_teacher_name = "Profe";
+        let fx_courses = &[2022, 2022] ;
+        let fx_username = "Usuario_schedule_list_by_name_ok";
+        let fx_username_2 = "Usuario_schedule_list_by_name_ok_2";
+        let fx_department_name = "Departamento_schedule_list_by_name_ok";
+        let fx_teacher_name = "Profe_schedule_list_by_name_ok";
+        let fx_teacher_name_2 = "Profe_schedule_list_by_name_ok_2";
 
-        let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
+        let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_teacher_id = _dev_utils::seed_teacher(&ctx, &mm, fx_teacher_name, fx_department_id, fx_user_id).await?;
+        let fx_user_id_2 = _dev_utils::seed_user(&ctx, &mm, fx_username_2).await?;
+        let fx_teacher_id_2 = _dev_utils::seed_teacher(&ctx, &mm, fx_teacher_name_2, fx_department_id, fx_user_id_2).await?;
 
         let fx_id_01 = _dev_utils::seed_schedule(&ctx, &mm, fx_courses[0], Some(fx_teacher_id), None).await?;
-        let fx_id_02 = _dev_utils::seed_schedule(&ctx, &mm, fx_courses[1], Some(fx_teacher_id), None).await?;
+        let fx_id_02 = _dev_utils::seed_schedule(&ctx, &mm, fx_courses[1], Some(fx_teacher_id_2), None).await?;
 
         // -- Exec
         let filter_json = json!({
-            "name": {"$contains": "Prueba"}, // time in Rfc3339
+            "course": {"$eq": fx_courses[0]}, // time in Rfc3339
         });
         let filter = vec![serde_json::from_value(filter_json)?];
 
         let schedules = ScheduleBmc::list(&ctx, &mm, Some(filter), None).await?;
 
         // -- Check
-        // let schedules: Vec<String> = schedules.into_iter().map(|s| s.course).collect();
-        // assert_eq!(schedules.len(), 2);
-        // assert_eq!(&schedules, fx_);
+        let schedules: Vec<String> = schedules.into_iter().map(|s| s.course.to_string()).collect();
+        let fx_schedules: Vec<String> = fx_courses.into_iter().map(|c| c.to_string()).collect();
+
+        assert_eq!(schedules.len(), 2);
+        assert_eq!(&schedules, &fx_schedules);
 
         // -- Cleanup
         ScheduleBmc::delete(&ctx, &mm, fx_id_01).await?;
         ScheduleBmc::delete(&ctx, &mm, fx_id_02).await?;
+        TeacherBmc::delete(&ctx, &mm, fx_teacher_id).await?;
+        TeacherBmc::delete(&ctx, &mm, fx_teacher_id_2).await?;
+        UserBmc::delete(&ctx, &mm, fx_user_id).await?;
+        UserBmc::delete(&ctx, &mm, fx_user_id_2).await?;
+        DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;        
 
         Ok(())
     }

@@ -1,6 +1,6 @@
 use lib_core::ctx::Ctx;
 use lib_core::model::ModelManager;
-use lib_core::model::department::{Department, DepartmentBmc, DepartmentFilter, DepartmentForCreate, DepartmentForUpdate};
+use lib_core::model::schedule::{Schedule, ScheduleBmc, ScheduleFilter, ScheduleForCreate, ScheduleForUpdate};
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsList};
 use crate::Result;
@@ -10,65 +10,63 @@ use crate::rpc_router;
 pub fn rpc_router() -> RpcRouter {
     rpc_router!(
         // Same as RpcRouter::new().add...
-        create_department,
-        get_department,
-        list_departments,
-        update_department,
-        delete_department,
+        create_schedule,
+        get_schedule,
+        list_schedules,
+        update_schedule,
+        delete_schedule,
     )
 }
 
-pub async fn create_department(
+pub async fn create_schedule(
     ctx: Ctx,
     mm: ModelManager,
-    params: ParamsForCreate<DepartmentForCreate>,
-) -> Result<Department> {
+    params: ParamsForCreate<ScheduleForCreate>,
+) -> Result<Schedule> {
     let ParamsForCreate { data } = params;
+    let id = ScheduleBmc::create(&ctx, &mm, data.clone()).await?;
+    let schedule = ScheduleBmc::get(&ctx, &mm, id).await?;
 
-    let id = DepartmentBmc::create(&ctx, &mm, data.clone()).await?;
-    
-    let department = DepartmentBmc::get(&ctx, &mm, id).await?;
-
-    Ok(department)
+    Ok(schedule)
 }
 
-pub async fn get_department(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<Department> {
+pub async fn get_schedule(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<Schedule> {
     let ParamsIded { id } = params;
 
-    let department = DepartmentBmc::get(&ctx, &mm, id).await?;
+    let schedule = ScheduleBmc::get(&ctx, &mm, id).await?;
 
-    Ok(department)
+    Ok(schedule)
 }
 
-pub async fn list_departments(
+pub async fn list_schedules(
     ctx: Ctx,
     mm: ModelManager,
-    params: ParamsList<DepartmentFilter>,
-) -> Result<Vec<Department>> {
-    let departments = DepartmentBmc::list(&ctx, &mm, params.filters, params.list_options).await?;
+    params: ParamsList<ScheduleFilter>,
+) -> Result<Vec<Schedule>> {
+    let schedules = ScheduleBmc::list(&ctx, &mm, params.filters, params.list_options).await?;
 
-    Ok(departments)
+    Ok(schedules)
 }
 
-pub async fn update_department(
+pub async fn update_schedule(
     ctx: Ctx,
     mm: ModelManager,
-    params: ParamsForUpdate<DepartmentForUpdate>,
-) -> Result<Department> {
+    params: ParamsForUpdate<ScheduleForUpdate>,
+) -> Result<Schedule> {
     let ParamsForUpdate { id, data } = params;
 
-    DepartmentBmc::update(&ctx, &mm, id, data).await?;
+    ScheduleBmc::update(&ctx, &mm, id, data).await?;
 
-    let department = DepartmentBmc::get(&ctx, &mm, id).await?;
+    let schedule = ScheduleBmc::get(&ctx, &mm, id).await?;
 
-    Ok(department)
+    Ok(schedule)
 }
 
-pub async fn delete_department(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<Department> {
+pub async fn delete_schedule(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<Schedule> {
     let ParamsIded { id } = params;
 
-    let department = DepartmentBmc::get(&ctx, &mm, id).await?;
-    DepartmentBmc::delete(&ctx, &mm, id).await?;
+    let schedule = ScheduleBmc::get(&ctx, &mm, id).await?;
+    ScheduleBmc::delete(&ctx, &mm, id).await?;
 
-    Ok(department)
+    Ok(schedule)
 }
