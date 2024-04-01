@@ -109,7 +109,7 @@ pub async fn get<MC, E>(_ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<E>
         .from(MC::table_ref())
         .columns(E::field_column_refs())
         .and_where(Expr::col(CommonIden::Id).eq(id));
-
+    
     // -- Exec query
     let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
     let entity = sqlx::query_as_with::<_, E, _>(&sql, values)

@@ -5,10 +5,13 @@ use tracing::info;
 
 use crate::ctx::Ctx;
 use crate::model::{self, ModelManager};
-use crate::model::project::{ProjectBmc, ProjectForCreate};
-use crate::model::specialty::{SpecialtyBmc, SpecialtyForCreate};
-use crate::model::task::{Task, TaskBmc, TaskForCreate};
+use crate::model::classroom::{ClassroomBmc, ClassroomForCreate};
+use crate::model::department::{DepartmentBmc, DepartmentForCreate};
+use crate::model::group::{GroupBmc, GroupForCreate};
+use crate::model::schedule::{ScheduleBmc, ScheduleForCreate};
+use crate::model::subject::{SubjectBmc, SubjectForCreate};
 use crate::model::user::{UserBmc, UserForCreate};
+use crate::model::teacher::{TeacherBmc, TeacherForCreate};
 
 mod dev_db;
 
@@ -41,43 +44,6 @@ pub async fn init_test() -> ModelManager {
     mm.clone()
 }
 
-pub async fn seed_tasks(
-    ctx: &Ctx,
-    mm: &ModelManager,
-    project_id: i64,
-    titles: &[&str],
-) -> model::Result<Vec<Task>> {
-    let mut tasks = Vec::new();
-
-    for title in titles {
-        let id = TaskBmc::create(
-            ctx,
-            mm,
-            TaskForCreate {
-                project_id,
-                title: title.to_string(),
-            },
-        )
-        .await?;
-        let task = TaskBmc::get(ctx, mm, id).await?;
-
-        tasks.push(task);
-    }
-
-    Ok(tasks)
-}
-
-pub async fn seed_project(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Result<i64> {
-    ProjectBmc::create(
-        ctx,
-        mm,
-        ProjectForCreate {
-            name: name.to_string(),
-        },
-    )
-        .await
-}
-
 pub async fn seed_user(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Result<i64> {
     UserBmc::create(
         ctx,
@@ -91,12 +57,101 @@ pub async fn seed_user(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Resul
         .await
 }
 
-pub async fn seed_specialty(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Result<i64> {
-    SpecialtyBmc::create(
+pub async fn seed_department(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Result<i64> {
+    DepartmentBmc::create(
         ctx,
         mm,
-        SpecialtyForCreate {
+        DepartmentForCreate {
             name: name.to_string()
+        },
+    )
+        .await
+}
+
+
+pub async fn seed_teacher(ctx: &Ctx, mm: &ModelManager, name: &str , department_id: i64, user_id: i64) -> model::Result<i64> {
+    TeacherBmc::create(
+        ctx,
+        mm,
+        TeacherForCreate {
+            name: name.to_string(),
+            active: true,
+            department_id,
+            user_id,
+        },
+    )
+        .await
+}
+
+pub async fn seed_subject(ctx: &Ctx, mm: &ModelManager, name: &str, department_id: i64, is_guard: bool, is_complementary: bool) -> model::Result<i64> {
+    SubjectBmc::create(
+        ctx,
+        mm,
+        SubjectForCreate {
+            name: name.to_string(),
+            department_id,
+            is_guard,
+            is_complementary
+        },
+    )
+        .await
+}
+
+
+pub async fn seed_group(ctx: &Ctx, mm: &ModelManager, letter: &str, course: i32, stage: i32, year: i32, tutor_id: i64) -> model::Result<i64> {
+    GroupBmc::create(
+        ctx,
+        mm,
+        GroupForCreate {
+            course,
+            stage,
+            year,
+            tutor_id,
+            letter: letter.to_string(),
+        },
+    )
+        .await
+}
+
+
+pub async fn seed_classroom(ctx: &Ctx, mm: &ModelManager, building: &str, floor: i32, number: i32, name: &str, type_c: i32, description: &str)  -> model::Result<i64> {
+    ClassroomBmc::create(
+        ctx,
+        mm,
+        ClassroomForCreate {
+            building: building.to_string(),
+            floor,
+            number,
+            name: name.to_string(),
+            type_c,
+            description: description.to_string(),
+        },
+    )
+        .await
+}
+
+pub async fn seed_schedule(ctx: &Ctx, mm: &ModelManager, course: i32, teacher_id: Option<i64>, group_id: Option<i64>)  -> model::Result<i64> {
+    ScheduleBmc::create(
+        ctx,
+        mm,
+        ScheduleForCreate {
+            course,
+            teacher_id,
+            group_id
+        },
+    )
+        .await
+}
+
+
+pub async fn seed_schedule_hour(ctx: &Ctx, mm: &ModelManager, course: i32, teacher_id: Option<i64>, group_id: Option<i64>)  -> model::Result<i64> {
+    ScheduleBmc::create(
+        ctx,
+        mm,
+        ScheduleForCreate {
+            course,
+            teacher_id,
+            group_id
         },
     )
         .await

@@ -26,11 +26,15 @@ pub use self::error::{Error, Result};
 mod base;
 mod error;
 pub mod modql_utils;
-pub mod project;
 mod store;
-pub mod task;
 pub mod user;
-pub mod specialty;
+pub mod department;
+pub mod teacher;
+pub mod subject;
+pub mod group;
+pub mod classroom;
+pub mod schedule;
+pub mod schedule_hour;
 
 // endregion: --- Modules
 

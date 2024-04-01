@@ -10,21 +10,22 @@ use crate::model::base::{self, PostgresDbBmc};
 use crate::model::ModelManager;
 use crate::model::Result;
 
-// region:    --- Specialty Types
+// region:    --- Department Types
 #[serde_as]
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
-pub struct Specialty {
+pub struct Department {
     pub id: i64,
     pub name: String,
 }
 
 #[derive(Fields, Deserialize, Clone)]
-pub struct SpecialtyForCreate {
+pub struct DepartmentForCreate {
     pub name: String,
 }
 
 #[derive(FilterNodes, Deserialize, Default, Debug)]
-pub struct SpecialtyFilter {
+pub struct DepartmentFilter {
+    id: Option<OpValsInt64>,
     name: Option<OpValsString>,
 
     cid: Option<OpValsInt64>,
@@ -36,37 +37,37 @@ pub struct SpecialtyFilter {
 }
 
 #[derive(Fields, Default, Deserialize)]
-pub struct SpecialtyForUpdate {
+pub struct DepartmentForUpdate {
     pub name: String,
 }
 
 
 #[derive(Fields)]
-pub struct SpecialtyForInsert {
+pub struct DepartmentForInsert {
     pub name: String,
 }
 
 /// Marker trait
-pub trait SpecialtyBy: HasFields + for<'r> FromRow<'r, PgRow> + Unpin + Send {}
+pub trait DepartmentBy: HasFields + for<'r> FromRow<'r, PgRow> + Unpin + Send {}
 
-impl SpecialtyBy for Specialty {}
+impl DepartmentBy for Department {}
 
-// endregion: --- Specialty Types
+// endregion: --- Department Types
 
-pub struct SpecialtyBmc;
+pub struct DepartmentBmc;
 
-impl PostgresDbBmc for SpecialtyBmc {
-    const TABLE: &'static str = "specialties";
+impl PostgresDbBmc for DepartmentBmc {
+    const TABLE: &'static str = "departments";
 }
 
-impl SpecialtyBmc {
-    pub async fn create(ctx: &Ctx, mm: &ModelManager, specialty_c: SpecialtyForCreate) -> Result<i64> {
-        base::create::<Self, _>(ctx, mm, specialty_c).await
+impl DepartmentBmc {
+    pub async fn create(ctx: &Ctx, mm: &ModelManager, department_c: DepartmentForCreate) -> Result<i64> {
+        base::create::<Self, _>(ctx, mm, department_c).await
     }
 
     pub async fn get<E>(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<E>
     where
-        E: SpecialtyBy,
+        E: DepartmentBy,
     {
         base::get::<Self, _>(ctx, mm, id).await
     }
@@ -74,9 +75,9 @@ impl SpecialtyBmc {
     pub async fn list(
         ctx: &Ctx,
         mm: &ModelManager,
-        filters: Option<Vec<SpecialtyFilter>>,
+        filters: Option<Vec<DepartmentFilter>>,
         list_options: Option<ListOptions>,
-    ) -> Result<Vec<Specialty>> {
+    ) -> Result<Vec<Department>> {
         base::list::<Self, _, _>(ctx, mm, filters, list_options).await
     }
 
@@ -85,9 +86,9 @@ impl SpecialtyBmc {
         ctx: &Ctx,
         mm: &ModelManager,
         id: i64,
-        specialty_u: SpecialtyForUpdate,
+        department_u: DepartmentForUpdate,
     ) -> Result<()> {
-        base::update::<Self, _>(ctx, mm, id, specialty_u).await
+        base::update::<Self, _>(ctx, mm, id, department_u).await
     }
 
     pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
@@ -98,12 +99,12 @@ impl SpecialtyBmc {
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
-    use anyhow::{Context, Result};
+    use anyhow::{Result};
     use serde_json::json;
     use serial_test::serial;
     use crate::_dev_utils;
     use crate::ctx::Ctx;
-    use crate::model::specialty::{Specialty, SpecialtyBmc, SpecialtyForCreate, SpecialtyForUpdate};
+    use crate::model::department::{Department, DepartmentBmc, DepartmentForCreate, DepartmentForUpdate};
 
     #[serial]
     #[tokio::test]
@@ -114,18 +115,18 @@ mod tests {
         let fx_name = "Informática";
 
         // -- Exec
-        let specialty_c = SpecialtyForCreate {
+        let department_c = DepartmentForCreate {
             name: fx_name.to_string(),
         };
 
-        let id = SpecialtyBmc::create(&ctx, &mm, specialty_c).await?;
+        let id = DepartmentBmc::create(&ctx, &mm, department_c).await?;
 
         // -- Check
-        let specialty: Specialty = SpecialtyBmc::get(&ctx, &mm, id).await?;
-        assert_eq!(specialty.name, fx_name);
+        let department: Department = DepartmentBmc::get(&ctx, &mm, id).await?;
+        assert_eq!(department.name, fx_name);
 
         // -- Clean
-        SpecialtyBmc::delete(&ctx, &mm, id).await?;
+        DepartmentBmc::delete(&ctx, &mm, id).await?;
 
         Ok(())
     }
@@ -138,25 +139,25 @@ mod tests {
         let ctx = Ctx::root_ctx();
         let fx_name = "Prueba";
         let fx_name_new = "Resultado prueba";
-        let fx_specialty_id = _dev_utils::seed_specialty(&ctx, &mm, fx_name).await?;
+        let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_name).await?;
 
         // -- Exec
-        SpecialtyBmc::update(
+        DepartmentBmc::update(
             &ctx,
             &mm,
-            fx_specialty_id,
-            SpecialtyForUpdate {
+            fx_department_id,
+            DepartmentForUpdate {
                 name: fx_name_new.to_string(),
             },
         )
             .await?;
 
         // -- Check
-        let user: Specialty = SpecialtyBmc::get(&ctx, &mm, fx_specialty_id).await?;
-        assert_eq!(user.name, fx_name_new);
+        let department: Department = DepartmentBmc::get(&ctx, &mm, fx_department_id).await?;
+        assert_eq!(department.name, fx_name_new);
 
         // -- Clean
-        SpecialtyBmc::delete(&ctx, &mm, fx_specialty_id).await?;
+        DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
 
         Ok(())
     }
@@ -171,8 +172,8 @@ mod tests {
             "Prueba",
             "Prueba2"
         ];
-        let fx_id_01 = _dev_utils::seed_specialty(&ctx, &mm, fx_names[0]).await?;
-        let fx_id_02 = _dev_utils::seed_specialty(&ctx, &mm, fx_names[1]).await?;
+        let fx_id_01 = _dev_utils::seed_department(&ctx, &mm, fx_names[0]).await?;
+        let fx_id_02 = _dev_utils::seed_department(&ctx, &mm, fx_names[1]).await?;
 
         // -- Exec
         let filter_json = json!({
@@ -180,16 +181,16 @@ mod tests {
         });
         let filter = vec![serde_json::from_value(filter_json)?];
 
-        let specialties = SpecialtyBmc::list(&ctx, &mm, Some(filter), None).await?;
+        let departments = DepartmentBmc::list(&ctx, &mm, Some(filter), None).await?;
 
         // -- Check
-        let specialties: Vec<String> = specialties.into_iter().map(|s| s.name).collect();
-        assert_eq!(specialties.len(), 2);
-        assert_eq!(&specialties, fx_names);
+        let departments: Vec<String> = departments.into_iter().map(|s| s.name).collect();
+        assert_eq!(departments.len(), 2);
+        assert_eq!(&departments, fx_names);
 
         // -- Cleanup
-        SpecialtyBmc::delete(&ctx, &mm, fx_id_01).await?;
-        SpecialtyBmc::delete(&ctx, &mm, fx_id_02).await?;
+        DepartmentBmc::delete(&ctx, &mm, fx_id_01).await?;
+        DepartmentBmc::delete(&ctx, &mm, fx_id_02).await?;
 
         Ok(())
     }

@@ -50,12 +50,6 @@ pub struct UserForUpdate {
     pub username: String,
 }
 
-
-#[derive(Fields)]
-pub struct UserForInsert {
-    pub username: String,
-}
-
 #[derive(Clone, FromRow, Fields, Debug)]
 pub struct UserForLogin {
     pub id: i64,
@@ -176,7 +170,7 @@ impl UserBmc {
         filters: Option<Vec<UserFilter>>,
         list_options: Option<ListOptions>,
     ) -> Result<Vec<User>> {
-        base::list::<Self, _, _>(ctx, mm, filters, list_options).await
+         base::list::<Self, _, _>(ctx, mm, filters, list_options).await
     }
 
 

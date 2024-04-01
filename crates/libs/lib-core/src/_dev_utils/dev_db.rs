@@ -14,8 +14,8 @@ type Db = Pool<Postgres>;
 
 // NOTE: Hardcode to prevent deployed system db update.
 //  POSTGRES
-const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:japama@localhost/postgres";
-const PG_DEV_APP_URL: &str = "postgres://postgres:japama@localhost/teacherinator";
+const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:japama@127.0.0.1/postgres";
+const PG_DEV_APP_URL: &str = "postgres://postgres:japama@127.0.0.1/teacherinator";
 
 // sql files
 const SQL_RECREATE_DB_FILE_NAME: &str = "00-recreate-db.sql";
@@ -43,7 +43,6 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
     {
         let sql_recreate_db_file = sql_dir.join(SQL_RECREATE_DB_FILE_NAME);
         let root_db = new_db_pool(PG_DEV_POSTGRES_URL).await?;
-
         pexec(&root_db, &sql_recreate_db_file).await?;
 
     }
