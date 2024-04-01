@@ -109,8 +109,9 @@ mod tests {
     use serde_json::json;
     use serial_test::serial;
     use crate::_dev_utils;
+    use crate::_dev_utils::seed_department;
     use crate::ctx::Ctx;
-    use crate::model::department::{DepartmentBmc, DepartmentForCreate};
+    use crate::model::department::{DepartmentBmc};
     use crate::model::subject::{Subject, SubjectBmc, SubjectForCreate, SubjectForUpdate};
 
     #[serial]
@@ -122,17 +123,13 @@ mod tests {
         let fx_name = "Informática";
         let fx_is_guard = false;
         let fx_is_complementary = false;
-
-        let department = DepartmentForCreate{
-            name: fx_name.to_string()
-        };
-        let department_id = DepartmentBmc::create(&ctx, &mm, department).await?;
-
-
+        let fx_department_name = "Departamento";
+        
+        let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
         // -- Exec
         let subject_c = SubjectForCreate {
             name: fx_name.to_string(),
-            department_id: department_id,
+            department_id: fx_department_id,
             is_guard: fx_is_guard,
             is_complementary: fx_is_complementary
         };
@@ -145,7 +142,7 @@ mod tests {
 
         // -- Clean
         SubjectBmc::delete(&ctx, &mm, id).await?;
-        DepartmentBmc::delete(&ctx, &mm, department_id).await?;
+        DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
         
         Ok(())
     }
@@ -158,14 +155,10 @@ mod tests {
         let ctx = Ctx::root_ctx();
         let fx_name = "Prueba";
         let fx_name_new = "Resultado prueba";
-        let fx_depart_name = "Departamento prueba";
-        let department = DepartmentForCreate{
-            name: fx_depart_name.to_string()
-        };
-        let department_id = DepartmentBmc::create(&ctx, &mm, department).await?;
+        let fx_department_name = "Departamento prueba";
 
-
-        let fx_subject_id = _dev_utils::seed_subject(&ctx, &mm, fx_name, department_id, false, false).await?;
+        let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
+        let fx_subject_id = _dev_utils::seed_subject(&ctx, &mm, fx_name, fx_department_id, false, false).await?;
 
         // -- Exec
         SubjectBmc::update(
@@ -175,7 +168,7 @@ mod tests {
             SubjectForUpdate {
                 is_guard: true,
                 is_complementary: true,
-                department_id: department_id,
+                department_id: fx_department_id,
                 name: fx_name_new.to_string(),
             },
         )
@@ -187,7 +180,7 @@ mod tests {
 
         // -- Clean
         SubjectBmc::delete(&ctx, &mm, fx_subject_id).await?;
-        DepartmentBmc::delete(&ctx, &mm, department_id).await?;
+        DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
         
         Ok(())
     }
@@ -198,18 +191,12 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_names = &[
-            "Prueba",
-            "Prueba2"
-        ];
-        let fx_depart_name = "Departamento prueba";
-        let department = DepartmentForCreate{
-            name: fx_depart_name.to_string()
-        };
-        let department_id = DepartmentBmc::create(&ctx, &mm, department).await?;
+        let fx_names = &["Prueba", "Prueba2"];
+        let fx_department_name = "Departamento prueba";
 
-        let fx_id_01 = _dev_utils::seed_subject(&ctx, &mm, fx_names[0], department_id, false, false).await?;
-        let fx_id_02 = _dev_utils::seed_subject(&ctx, &mm, fx_names[1], department_id, true, true).await?;
+        let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
+        let fx_id_01 = _dev_utils::seed_subject(&ctx, &mm, fx_names[0], fx_department_id, false, false).await?;
+        let fx_id_02 = _dev_utils::seed_subject(&ctx, &mm, fx_names[1], fx_department_id, true, true).await?;
 
         // -- Exec
         let filter_json = json!({
@@ -227,6 +214,7 @@ mod tests {
         // -- Cleanup
         SubjectBmc::delete(&ctx, &mm, fx_id_01).await?;
         SubjectBmc::delete(&ctx, &mm, fx_id_02).await?;
+        DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
 
         Ok(())
     }
