@@ -108,7 +108,9 @@ VALUES ('Edificio1', 0, 1, 'Sala 1', 0, 'Habitación normal', 0, now(), 0, now()
 -- Insertar datos en la tabla schedules
 INSERT INTO schedules (teacher_id, group_id, course, cid, ctime, mid, mtime)
 VALUES (1000, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
+INSERT INTO schedules (teacher_id, group_id, course, cid, ctime, mid, mtime)
+VALUES (1001, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
 
 -- Insertar datos en la tabla schedule_hours
-INSERT INTO schedule_hours (subject_id, week_day, n_hour, course, start_time, end_time)
-VALUES (1000, 1, 1, 2024, '08:00:00', '09:00:00');
+INSERT INTO schedule_hours (schedule_id, subject_id, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+VALUES (1000, 1000, 1, 1, 2024, '18:56:43', '11:22:44', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);

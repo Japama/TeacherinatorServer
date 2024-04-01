@@ -142,3 +142,17 @@ pub async fn seed_schedule(ctx: &Ctx, mm: &ModelManager, course: i32, teacher_id
     )
         .await
 }
+
+
+pub async fn seed_schedule_hour(ctx: &Ctx, mm: &ModelManager, course: i32, teacher_id: Option<i64>, group_id: Option<i64>)  -> model::Result<i64> {
+    ScheduleBmc::create(
+        ctx,
+        mm,
+        ScheduleForCreate {
+            course,
+            teacher_id,
+            group_id
+        },
+    )
+        .await
+}

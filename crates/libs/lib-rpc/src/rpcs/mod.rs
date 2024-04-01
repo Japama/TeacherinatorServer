@@ -5,3 +5,4 @@ pub mod subject_rpc;
 pub mod group_rpc;
 pub mod classroom_rpc;
 pub mod schedule_rpc;
+pub mod schedule_hour_rpc;
