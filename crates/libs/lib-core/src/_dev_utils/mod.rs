@@ -1,5 +1,6 @@
 // region:    --- Modules
 
+use time::Time;
 use tokio::sync::OnceCell;
 use tracing::info;
 
@@ -9,6 +10,7 @@ use crate::model::classroom::{ClassroomBmc, ClassroomForCreate};
 use crate::model::department::{DepartmentBmc, DepartmentForCreate};
 use crate::model::group::{GroupBmc, GroupForCreate};
 use crate::model::schedule::{ScheduleBmc, ScheduleForCreate};
+use crate::model::schedule_hour::{ScheduleHourBmc, ScheduleHourForCreate};
 use crate::model::subject::{SubjectBmc, SubjectForCreate};
 use crate::model::user::{UserBmc, UserForCreate};
 use crate::model::teacher::{TeacherBmc, TeacherForCreate};
@@ -130,28 +132,35 @@ pub async fn seed_classroom(ctx: &Ctx, mm: &ModelManager, building: &str, floor:
         .await
 }
 
-pub async fn seed_schedule(ctx: &Ctx, mm: &ModelManager, course: i32, teacher_id: Option<i64>, group_id: Option<i64>)  -> model::Result<i64> {
+pub async fn seed_schedule(ctx: &Ctx, mm: &ModelManager, course: i32, teacher_id: i64, group_id: i64)  -> model::Result<i64> {
+    let teacher = if teacher_id == -1 { None } else { Some(teacher_id) };
+    let group= if group_id == -1 { None } else { Some(group_id) };
+
     ScheduleBmc::create(
         ctx,
         mm,
         ScheduleForCreate {
             course,
-            teacher_id,
-            group_id
+            teacher_id: teacher,
+            group_id: group
         },
     )
         .await
 }
 
 
-pub async fn seed_schedule_hour(ctx: &Ctx, mm: &ModelManager, course: i32, teacher_id: Option<i64>, group_id: Option<i64>)  -> model::Result<i64> {
-    ScheduleBmc::create(
+pub async fn seed_schedule_hour(ctx: &Ctx, mm: &ModelManager, schedule_id: i64, subject_id: i64, week_day: i32, n_hour: i32, start_time: Time, end_time: Time, course: i32 )  -> model::Result<i64> {
+    ScheduleHourBmc::create(
         ctx,
         mm,
-        ScheduleForCreate {
-            course,
-            teacher_id,
-            group_id
+        ScheduleHourForCreate {
+            schedule_id,
+            subject_id,
+            week_day,
+            n_hour,
+            start_time,
+            end_time,
+            course
         },
     )
         .await

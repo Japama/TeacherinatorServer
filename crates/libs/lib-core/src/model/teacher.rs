@@ -120,9 +120,9 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_name = "Informática";
-        let fx_username = "Pepito";
-        let fx_department_name = "Informática";
+        let fx_name = "Informática_create_ok";
+        let fx_username = "Pepito_create_ok";
+        let fx_department_name = "Informática_create_ok";
         
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
@@ -144,6 +144,7 @@ mod tests {
         // -- Clean
         TeacherBmc::delete(&ctx, &mm, id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
+        DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
         
         Ok(())
     }
@@ -194,21 +195,13 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_names = &[
-            "Prueba",
-            "Prueba2"
-        ];
-        let fx_usernames = &[
-            "Prueba",
-            "Prueba2"
-        ];
-
+        let fx_names = &["Prueba", "Prueba2"];
+        let fx_usernames = &["Prueba", "Prueba2"];
         let fx_department_name= "Departamento";
+        
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-
         let fx_user_id_01 = _dev_utils::seed_user(&ctx, &mm, fx_usernames[0]).await?;
         let fx_user_id_02 = _dev_utils::seed_user(&ctx, &mm, fx_usernames[1]).await?;
-
         let fx_id_01 = _dev_utils::seed_teacher(&ctx, &mm, fx_names[0], fx_department_id, fx_user_id_01).await?;
         let fx_id_02 = _dev_utils::seed_teacher(&ctx, &mm, fx_names[1], fx_department_id, fx_user_id_02).await?;
 

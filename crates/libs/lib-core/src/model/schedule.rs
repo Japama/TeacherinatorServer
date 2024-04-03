@@ -101,15 +101,11 @@ impl ScheduleBmc {
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
-    use std::iter::Map;
-    use std::ptr::null;
     use anyhow::{Result};
-    use bson::Bson::Null;
-    use futures::TryFutureExt;
     use serde_json::json;
     use serial_test::serial;
     use crate::_dev_utils;
-    use crate::_dev_utils::{seed_department, seed_teacher, seed_user};
+    use crate::_dev_utils::{seed_department, seed_user};
     use crate::ctx::Ctx;
     use crate::model::department::DepartmentBmc;
     use crate::model::schedule::{Schedule, ScheduleBmc, ScheduleForCreate, ScheduleForUpdate};
@@ -164,11 +160,11 @@ mod tests {
         let fx_username = "Prueba_schedule_update_ok";
         let fx_teacher_name = "Profe_schedule_update_ok";
         let fx_department_name = "Departamento_schedule_update_ok";
-        let fx_group_id = None;
+        let fx_group_id = -1;
         
         let fx_user_id = seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id= seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_teacher_id = Some(_dev_utils::seed_teacher(&ctx, &mm, fx_teacher_name, fx_department_id ,fx_user_id).await?);
+        let fx_teacher_id = _dev_utils::seed_teacher(&ctx, &mm, fx_teacher_name, fx_department_id ,fx_user_id).await?;
         let fx_schedule_id = _dev_utils::seed_schedule(&ctx, &mm, fx_course, fx_teacher_id, fx_group_id).await?;
         
         // -- Exec
@@ -179,7 +175,7 @@ mod tests {
             ScheduleForUpdate {
                 course: fx_course_new,
                 group_id: None,
-                teacher_id: fx_teacher_id
+                teacher_id: Some(fx_teacher_id)
             },
         )
             .await?;
@@ -190,6 +186,9 @@ mod tests {
 
         // -- Clean
         ScheduleBmc::delete(&ctx, &mm, fx_schedule_id).await?;
+        TeacherBmc::delete(&ctx, &mm, fx_teacher_id).await?;
+        DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
+        UserBmc::delete(&ctx, &mm, fx_user_id).await?;
 
         Ok(())
     }
@@ -213,8 +212,8 @@ mod tests {
         let fx_user_id_2 = _dev_utils::seed_user(&ctx, &mm, fx_username_2).await?;
         let fx_teacher_id_2 = _dev_utils::seed_teacher(&ctx, &mm, fx_teacher_name_2, fx_department_id, fx_user_id_2).await?;
 
-        let fx_id_01 = _dev_utils::seed_schedule(&ctx, &mm, fx_courses[0], Some(fx_teacher_id), None).await?;
-        let fx_id_02 = _dev_utils::seed_schedule(&ctx, &mm, fx_courses[1], Some(fx_teacher_id_2), None).await?;
+        let fx_id_01 = _dev_utils::seed_schedule(&ctx, &mm, fx_courses[0], fx_teacher_id, -1).await?;
+        let fx_id_02 = _dev_utils::seed_schedule(&ctx, &mm, fx_courses[1], fx_teacher_id_2, -1).await?;
 
         // -- Exec
         let filter_json = json!({

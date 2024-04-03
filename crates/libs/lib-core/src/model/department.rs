@@ -112,7 +112,7 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_name = "Informática";
+        let fx_name = "Informática_create_ok";
 
         // -- Exec
         let department_c = DepartmentForCreate {
@@ -137,8 +137,8 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_name = "Prueba";
-        let fx_name_new = "Resultado prueba";
+        let fx_name = "Prueba_update_ok";
+        let fx_name_new = "Resultado prueba_update_ok";
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_name).await?;
 
         // -- Exec
@@ -169,8 +169,8 @@ mod tests {
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
         let fx_names = &[
-            "Prueba",
-            "Prueba2"
+            "Prueba_list_by_name_ok",
+            "Prueba2_list_by_name_ok"
         ];
         let fx_id_01 = _dev_utils::seed_department(&ctx, &mm, fx_names[0]).await?;
         let fx_id_02 = _dev_utils::seed_department(&ctx, &mm, fx_names[1]).await?;
