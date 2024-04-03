@@ -40,7 +40,7 @@ CREATE TABLE "teachers"
     user_id       BIGINT                   NOT NULL UNIQUE,
     name          varchar(128)             NOT NULL UNIQUE,
     active        bool,
-    department_id BIGINT                   NOT NULL UNIQUE,
+    department_id BIGINT                   NOT NULL,
 --     substituting  BIGINT                   UNIQUE,
 
     -- Timestamps

@@ -120,9 +120,9 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_name = "Informática";
-        let fx_username = "Pepito";
-        let fx_department_name = "Informática";
+        let fx_name = "Informática_create_ok";
+        let fx_username = "Pepito_create_ok";
+        let fx_department_name = "Informática_create_ok";
         
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
