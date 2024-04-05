@@ -53,6 +53,8 @@ async fn main() -> Result<()> {
         "http://192.168.3.3:8080".parse().unwrap(),
         "http://localhost:8080".parse().unwrap(),
         "http://localhost:3000".parse().unwrap(),
+        "http://127.0.0.1:3000".parse().unwrap(),
+        "http://127.0.0.1:8080".parse().unwrap(),
     ];
 
     let cors = CorsLayer::new()
@@ -60,6 +62,7 @@ async fn main() -> Result<()> {
         .allow_methods([Method::POST, Method::OPTIONS])
         // allow requests from any origin
         .allow_origin(origins)
+        .allow_credentials(true)
         .allow_headers([CONTENT_TYPE, ACCESS_CONTROL_ALLOW_ORIGIN]);
 
     let routes_all = Router::new()
