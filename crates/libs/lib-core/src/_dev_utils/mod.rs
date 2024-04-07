@@ -71,12 +71,11 @@ pub async fn seed_department(ctx: &Ctx, mm: &ModelManager, name: &str) -> model:
 }
 
 
-pub async fn seed_teacher(ctx: &Ctx, mm: &ModelManager, name: &str , department_id: i64, user_id: i64) -> model::Result<i64> {
+pub async fn seed_teacher(ctx: &Ctx, mm: &ModelManager, department_id: i64, user_id: i64) -> model::Result<i64> {
     TeacherBmc::create(
         ctx,
         mm,
         TeacherForCreate {
-            name: name.to_string(),
             active: true,
             department_id,
             user_id,

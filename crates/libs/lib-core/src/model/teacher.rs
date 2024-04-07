@@ -16,7 +16,6 @@ use crate::model::Result;
 pub struct Teacher {
     pub id: i64,
     pub user_id: i64,
-    pub name: String,
     pub active: bool,
     pub department_id: i64
 }
@@ -24,7 +23,6 @@ pub struct Teacher {
 #[derive(Fields, Deserialize, Clone)]
 pub struct TeacherForCreate {
     pub user_id: i64,
-    pub name: String,
     pub active: bool,
     pub department_id: i64
 }
@@ -33,7 +31,6 @@ pub struct TeacherForCreate {
 pub struct TeacherFilter {
     id: Option<OpValsInt64>,
     user_id: Option<OpValsInt64>,
-    name: Option<OpValsString>,
     active: Option<OpValsBool>,
     department_id: Option<OpValsInt64>,
 
@@ -48,7 +45,6 @@ pub struct TeacherFilter {
 #[derive(Fields, Default, Deserialize)]
 pub struct TeacherForUpdate {
     pub user_id: i64,
-    pub name: String,
     pub active: bool,
     pub department_id: i64
 }

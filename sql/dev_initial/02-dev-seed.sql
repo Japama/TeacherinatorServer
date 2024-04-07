@@ -29,6 +29,8 @@ INSERT INTO "users" (username, isadmin, cid, ctime, mid, mtime)
 VALUES ('secretaria1', true, 0, now(), 0, now());
 
 -- Departments
+INSERT INTO "departments" (id, name, cid, ctime, mid, mtime)
+VALUES (1, 'Ninguno', 0, now(), 0, now());
 INSERT INTO "departments" (name, cid, ctime, mid, mtime)
 VALUES ('Matemáticas', 0, now(), 0, now());
 INSERT INTO "departments" (name, cid, ctime, mid, mtime)
@@ -49,24 +51,24 @@ INSERT INTO "departments" (name, cid, ctime, mid, mtime)
 VALUES ('Francés', 0, now(), 0, now());
 
 -- Teachers
-INSERT INTO "teachers" (name, user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES ('ProfMat1', 1000, true,1000, 0, now(), 0, now());
-INSERT INTO "teachers" (name, user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES ('ProfFis1', 1001, true,1001, 0, now(), 0, now());
-INSERT INTO "teachers" (name, user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES ('ProfEF1', 1002, true,1002, 0, now(), 0, now());
-INSERT INTO "teachers" (name, user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES ('ProfIng1', 1003, true,1003, 0, now(), 0, now());
-INSERT INTO "teachers" (name, user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES ('ProfMus1', 1004, true,1004, 0, now(), 0, now());
-INSERT INTO "teachers" (name, user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES ('ProfCas1', 1005, true,1005, 0, now(), 0, now());
-INSERT INTO "teachers" (name, user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES ('ProfVal1', 1006, true,1006, 0, now(), 0, now());
-INSERT INTO "teachers" (name, user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES ('ProfInfo1', 1007, true,1007, 0, now(), 0, now());
-INSERT INTO "teachers" (name, user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES ('ProfFran1', 1008, true,1008, 0, now(), 0, now());
+INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
+VALUES (1000, true,1000, 0, now(), 0, now());
+INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
+VALUES (1001, true,1001, 0, now(), 0, now());
+INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
+VALUES (1002, true,1002, 0, now(), 0, now());
+INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
+VALUES (1003, true,1003, 0, now(), 0, now());
+INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
+VALUES (1004, true,1004, 0, now(), 0, now());
+INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
+VALUES (1005, true,1005, 0, now(), 0, now());
+INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
+VALUES (1006, true,1006, 0, now(), 0, now());
+INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
+VALUES (1007, true,1007, 0, now(), 0, now());
+INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
+VALUES (1008, true,1008, 0, now(), 0, now());
 
 -- Subjects
 INSERT INTO "subjects" (name, department_id, is_guard, is_complementary, cid, ctime, mid, mtime)

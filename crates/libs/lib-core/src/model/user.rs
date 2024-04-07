@@ -45,9 +45,17 @@ pub struct UserFilter {
     mtime: Option<OpValsValue>,
 }
 
-#[derive(Fields, Default, Deserialize)]
+#[derive(Fields, Default, Deserialize, Clone)]
 pub struct UserForUpdate {
     pub username: String,
+    pub isadmin: bool
+}
+
+#[derive(Fields, Default, Deserialize, Clone)]
+pub struct UserForUpdatePwd {
+    pub username: String,
+    pub isadmin: bool,
+    pub pwd: String,
 }
 
 #[derive(Clone, FromRow, Fields, Debug)]
