@@ -1,17 +1,19 @@
 use modql::field::{Field, Fields, HasFields};
 use modql::filter::{FilterNodes, ListOptions, OpValsBool, OpValsInt64, OpValsString, OpValsValue};
+use sea_query::extension::postgres::PgExpr;
 use sea_query::{Expr, Iden, PostgresQueryBuilder, Query};
 use sea_query_binder::SqlxBinder;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use sqlx::FromRow;
 use sqlx::postgres::PgRow;
+use sqlx::FromRow;
 use uuid::Uuid;
 
 use lib_auth::pwd::{self, ContentToHash};
-use crate::model::modql_utils::time_to_sea_value;
+
 use crate::ctx::Ctx;
 use crate::model::base::{self, add_timestamps_for_update, PostgresDbBmc};
+use crate::model::modql_utils::time_to_sea_value;
 use crate::model::ModelManager;
 use crate::model::Result;
 
@@ -21,7 +23,7 @@ use crate::model::Result;
 pub struct User {
     pub id: i64,
     pub username: String,
-    pub isadmin: bool
+    pub isadmin: bool,
 }
 
 #[derive(Fields, Deserialize, Clone)]
@@ -48,7 +50,7 @@ pub struct UserFilter {
 #[derive(Fields, Default, Deserialize, Clone)]
 pub struct UserForUpdate {
     pub username: String,
-    pub isadmin: bool
+    pub isadmin: bool,
 }
 
 #[derive(Fields, Default, Deserialize, Clone)]
@@ -109,7 +111,6 @@ impl UserBmc {
     where
         E: UserBy,
     {
-
         base::get::<Self, _>(ctx, mm, id).await
     }
 
@@ -148,7 +149,7 @@ impl UserBmc {
             content: pwd_clear.to_string(),
             salt: user.pwd_salt,
         })
-            .await?;
+        .await?;
 
         // -- Prep the data
         let mut fields = Fields::new(vec![Field::new(UserIden::Pwd, pwd.into())]);
@@ -178,9 +179,8 @@ impl UserBmc {
         filters: Option<Vec<UserFilter>>,
         list_options: Option<ListOptions>,
     ) -> Result<Vec<User>> {
-         base::list::<Self, _, _>(ctx, mm, filters, list_options).await
+        base::list::<Self, _, _>(ctx, mm, filters, list_options).await
     }
-
 
     pub async fn update(
         ctx: &Ctx,
@@ -194,6 +194,32 @@ impl UserBmc {
     pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
         base::delete::<Self>(ctx, mm, id).await
     }
+
+    pub async fn check_username<E>(
+        _ctx: &Ctx,
+        mm: &ModelManager,
+        username: &str,
+    ) -> Result<Option<E>>
+    where
+        E: UserBy,
+    {
+        let db = mm.postgres_db();
+
+        // -- Build query
+        let mut query = Query::select();
+        query
+            .from(Self::table_ref())
+            .columns(E::field_idens())
+            .and_where(Expr::col(UserIden::Username).ilike(username));
+
+        // -- Exec query
+        let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
+        let user = sqlx::query_as_with::<_, E, _>(&sql, values)
+            .fetch_optional(db)
+            .await?;
+
+        Ok(user)
+    }
 }
 
 // region:    --- Tests
@@ -202,6 +228,7 @@ mod tests {
     use anyhow::{Context, Result};
     use serde_json::json;
     use serial_test::serial;
+
     use crate::_dev_utils;
     use crate::ctx::Ctx;
     use crate::model::user::{User, UserBmc, UserForCreate, UserForUpdate};
@@ -224,7 +251,7 @@ mod tests {
 
         Ok(())
     }
-    
+
     #[serial]
     #[tokio::test]
     async fn test_create_ok() -> Result<()> {
@@ -232,14 +259,13 @@ mod tests {
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
         let fx_username = "Prueba_Crear";
-        let fx_pwd ="Contraseña";
-
+        let fx_pwd = "Contraseña";
 
         // -- Exec
         let user_c = UserForCreate {
             username: fx_username.to_string(),
             pwd: fx_pwd.to_string(),
-            isadmin: false
+            isadmin: false,
         };
 
         let id = UserBmc::create(&ctx, &mm, user_c).await?;
@@ -253,7 +279,7 @@ mod tests {
 
         Ok(())
     }
-    
+
     #[serial]
     #[tokio::test]
     async fn test_update_ok() -> Result<()> {
@@ -273,7 +299,7 @@ mod tests {
                 username: fx_username_new.to_string(),
             },
         )
-            .await?;
+        .await?;
 
         // -- Check
         let user: User = UserBmc::get(&ctx, &mm, fx_user_id).await?;
@@ -291,11 +317,7 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_usernames = &[
-            "Juanba test list",
-            "Marta test list",
-            "Amalia test list",
-        ];
+        let fx_usernames = &["Juanba test list", "Marta test list", "Amalia test list"];
         let fx_id_01 = _dev_utils::seed_user(&ctx, &mm, fx_usernames[0]).await?;
         let fx_id_02 = _dev_utils::seed_user(&ctx, &mm, fx_usernames[1]).await?;
         let fx_id_03 = _dev_utils::seed_user(&ctx, &mm, fx_usernames[2]).await?;

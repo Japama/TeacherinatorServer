@@ -1,11 +1,13 @@
 use lib_core::ctx::Ctx;
+use lib_core::model::user::{
+    User, UserBmc, UserFilter, UserForCreate, UserForUpdate, UserForUpdatePwd,
+};
 use lib_core::model::ModelManager;
-use lib_core::model::user::{User, UserBmc, UserFilter, UserForCreate, UserForUpdate, UserForUpdatePwd};
 
-use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsList};
-use crate::Result;
 use crate::router::RpcRouter;
 use crate::rpc_router;
+use crate::Result;
+use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsIdedString, ParamsList};
 
 pub fn rpc_router() -> RpcRouter {
     rpc_router!(
@@ -16,6 +18,7 @@ pub fn rpc_router() -> RpcRouter {
         update_user,
         update_user_pwd,
         delete_user,
+        check_duplicate_username,
     )
 }
 
@@ -64,7 +67,6 @@ pub async fn update_user(
     // UserBmc::update_pwd(&ctx, &mm, id, &pwd).await?;
     let user = UserBmc::get(&ctx, &mm, id).await?;
 
-
     Ok(user)
 }
 
@@ -74,7 +76,7 @@ pub async fn update_user_pwd(
     params: ParamsForUpdate<UserForUpdatePwd>,
 ) -> Result<User> {
     let ParamsForUpdate { id, data } = params;
-    
+
     let user_for_update = UserForUpdate {
         username: data.username.clone(),
         isadmin: data.isadmin,
@@ -90,7 +92,6 @@ pub async fn update_user_pwd(
     Ok(user)
 }
 
-
 pub async fn delete_user(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<User> {
     let ParamsIded { id } = params;
 
@@ -98,4 +99,13 @@ pub async fn delete_user(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Resu
     UserBmc::delete(&ctx, &mm, id).await?;
 
     Ok(user)
+}
+
+pub async fn check_duplicate_username(
+    ctx: Ctx,
+    mm: ModelManager,
+    params: ParamsIdedString,
+) -> Result<bool> {
+    let user: Option<User> = UserBmc::check_username(&ctx, &mm, &params.data).await?;
+    Ok(user.is_some())
 }

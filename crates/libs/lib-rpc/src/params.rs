@@ -11,10 +11,10 @@ use modql::filter::ListOptions;
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use serde_json::Value;
-use serde_with::{OneOrMany, serde_as};
+use serde_with::{serde_as, OneOrMany};
 
-use crate::Result;
 use crate::router::{IntoDefaultParams, IntoParams};
+use crate::Result;
 
 /// Params structure for any RPC Create call.
 #[derive(Deserialize)]
@@ -38,15 +38,21 @@ impl<D> IntoParams for ParamsForUpdate<D> where D: DeserializeOwned + Send {}
 pub struct ParamsIded {
     pub id: i64,
 }
-
 impl IntoParams for ParamsIded {}
+
+#[derive(Deserialize)]
+pub struct ParamsIdedString {
+    pub data: String,
+}
+
+impl IntoParams for ParamsIdedString {}
 
 /// Params structure for any RPC List call.
 #[serde_as]
 #[derive(Deserialize, Default)]
 pub struct ParamsList<F>
-    where
-        F: DeserializeOwned,
+where
+    F: DeserializeOwned,
 {
     #[serde_as(deserialize_as = "Option<OneOrMany<_>>")]
     pub filters: Option<Vec<F>>,
@@ -64,9 +70,9 @@ impl<D> IntoDefaultParams for ParamsList<D> where D: DeserializeOwned + Send + D
 ///       simply remove this general implementation and provide specific
 ///       implementations for each type.
 impl<D> IntoParams for Option<D>
-    where
-        D: DeserializeOwned + Send,
-        D: IntoParams,
+where
+    D: DeserializeOwned + Send,
+    D: IntoParams,
 {
     fn into_params(value: Option<Value>) -> Result<Self> {
         let value = value.map(|v| serde_json::from_value(v)).transpose()?;
