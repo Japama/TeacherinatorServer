@@ -98,9 +98,9 @@ VALUES ('Atención a padres', 1000, false, true, 0, now(), 0, now());
 
 -- Groups
 INSERT INTO "groups" (course, stage, year, letter, tutor_id, cid, ctime, mid, mtime)
-VALUES (2023, 1, 1, 'A', 1000, 0, now(), 0, now());
+VALUES (1, 1, 2023, 'A', 1000, 0, now(), 0, now());
 INSERT INTO "groups" (course, stage, year, letter, tutor_id, cid, ctime, mid, mtime)
-VALUES (2023, 1, 1, 'B', 1001, 0, now(), 0, now());
+VALUES (1, 1, 2023, 'B', 1001, 0, now(), 0, now());
 
 -- Classroom
 INSERT INTO "classrooms" (building, floor, number, name, type_c, description, cid, ctime, mid, mtime)
@@ -112,7 +112,24 @@ INSERT INTO schedules (teacher_id, group_id, course, cid, ctime, mid, mtime)
 VALUES (1000, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
 INSERT INTO schedules (teacher_id, group_id, course, cid, ctime, mid, mtime)
 VALUES (1001, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
+INSERT INTO schedules (teacher_id, group_id, course, cid, ctime, mid, mtime)
+VALUES (null, 1000, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
+INSERT INTO schedules (teacher_id, group_id, course, cid, ctime, mid, mtime)
+VALUES (null, 1001, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
 
 -- Insertar datos en la tabla schedule_hours
-INSERT INTO schedule_hours (schedule_id, subject_id, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
-VALUES (1000, 1000, 1, 1, 2024, '18:56:43', '11:22:44', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+VALUES (1000, 'Matemáticas','Aula 01', 0, 0, 2024, '08:00:00', '08:50:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+VALUES (1000, 'Matemáticas','Aula 01', 0, 1, 2024, '08:50:00', '09:40:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+VALUES (1000, 'Matemáticas','Aula 01', 1, 0, 2024, '08:00:00', '08:50:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+VALUES (1000, 'Matemáticas','Aula 01', 1, 1, 2024, '08:50:00', '09:40:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+VALUES (1000, 'Matemáticas','Aula 01', 1, 5, 2024, '11:50:00', '12:40:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+
+
+
+INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+VALUES (1001, 'Matemáticas','Aula 01', 1, 1, 2024, '18:56:43', '11:22:44', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);

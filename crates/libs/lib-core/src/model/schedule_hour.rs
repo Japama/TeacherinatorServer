@@ -19,7 +19,8 @@ use crate::model::Result;
 pub struct ScheduleHour {
     pub id: i64,
     pub schedule_id: i64,
-    pub subject_id: i64,
+    pub subject_name: String,
+    pub classroom_name: String,
     pub week_day: i32,
     pub n_hour: i32,
     pub start_time: Time,
@@ -30,7 +31,8 @@ pub struct ScheduleHour {
 #[derive(Fields, Deserialize, Clone)]
 pub struct ScheduleHourForCreate {
     pub schedule_id: i64,
-    pub subject_id: i64,
+    pub subject_name: String,
+    pub classroom_name: String,
     pub week_day: i32,
     pub n_hour: i32,
     pub start_time: Time,
@@ -42,8 +44,9 @@ pub struct ScheduleHourForCreate {
 pub struct ScheduleHourFilter {
     id: Option<OpValsInt64>,
 
-    schedule_id: Option<OpValsInt64>,    
-    subject_id: Option<OpValsInt64>,
+    schedule_id: Option<OpValsInt64>,
+    subject_name: Option<OpValsInt64>,
+    classroom_name: Option<OpValsInt64>,
     week_day: Option<OpValsInt64>,
     n_hour: Option<OpValsInt64>,
     #[modql(to_sea_value_fn = "time_to_sea_value")]
@@ -64,7 +67,8 @@ impl Default for ScheduleHourForUpdate {
     fn default() -> Self {
         Self {
             schedule_id: 0,
-            subject_id: 0, // default value
+            subject_name: "".to_string(), // default value
+            classroom_name: "".to_string(), // default value
             week_day: 0,   // default value
             n_hour: 0,     // default value
             start_time: Time::MIDNIGHT  /* provide a value */,
@@ -77,7 +81,8 @@ impl Default for ScheduleHourForUpdate {
 #[derive(Fields, Deserialize)]
 pub struct ScheduleHourForUpdate {
     pub schedule_id: i64,
-    pub subject_id: i64,
+    pub subject_name: String,
+    pub classroom_name: String,
     pub week_day: i32,
     pub n_hour: i32,
     pub start_time: Time,
