@@ -39,6 +39,7 @@ async fn api_login_handler(
         .await?
         .ok_or(Error::LoginFailUsernameNotFound)?;
     let user_id = user.id;
+    let is_admin = user.isadmin;
 
     // -- Validate the password.
     let Some(pwd) = user.pwd else {
@@ -67,7 +68,8 @@ async fn api_login_handler(
     // Create the success body.
     let body = Json(json!({
         "result": {
-            "success": true
+            "success": true,
+            "is_admin": is_admin
         }
     }));
 

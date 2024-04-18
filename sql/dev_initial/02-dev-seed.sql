@@ -134,20 +134,20 @@ VALUES (1000, 'Cultura digital','Info 3', 0, 5, 2024, '12:05:00', '13:00:00', 0,
 INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
 VALUES (1000, 'Libre','', 0, 6, 2024, '13:00:00', '13:55:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 
-INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
-VALUES (1000, 'Matemáticas','Info 2', 0, 7, 2024, '14:00:00', '08:55:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
-VALUES (1000, 'Matemáticas','Info 2', 0, 8, 2024, '15:55:00', '09:50:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
-VALUES (1000, 'Mantenimiento','Departamento', 0, 9, 2024, '16:50:00', '10:45:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
-VALUES (1000, 'Recreo','Patio', 0, 10, 2024, '17:45:00', '11:10:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
-VALUES (1000, 'Atención a familias','Sala de profesores', 0, 11, 2024, '18:10:00', '12:05:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
-VALUES (1000, 'Cultura digital','Info 3', 0, 12, 2024, '19:05:00', '13:00:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
-VALUES (1000, 'Libre','', 0, 13, 2024, '20:00:00', '13:55:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+-- VALUES (1000, 'Matemáticas','Info 2', 0, 7, 2024, '14:00:00', '08:55:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+-- VALUES (1000, 'Matemáticas','Info 2', 0, 8, 2024, '15:55:00', '09:50:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+-- VALUES (1000, 'Mantenimiento','Departamento', 0, 9, 2024, '16:50:00', '10:45:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+-- VALUES (1000, 'Recreo','Patio', 0, 10, 2024, '17:45:00', '11:10:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+-- VALUES (1000, 'Atención a familias','Sala de profesores', 0, 11, 2024, '18:10:00', '12:05:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+-- VALUES (1000, 'Cultura digital','Info 3', 0, 12, 2024, '19:05:00', '13:00:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, start_time, end_time,cid, ctime, mid, mtime)
+-- VALUES (1000, 'Libre','', 0, 13, 2024, '20:00:00', '13:55:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 
 
 -- MARTES

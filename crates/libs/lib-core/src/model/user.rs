@@ -64,6 +64,7 @@ pub struct UserForUpdatePwd {
 pub struct UserForLogin {
     pub id: i64,
     pub username: String,
+    pub isadmin: bool,
 
     // -- pwd and token info
     pub pwd: Option<String>, // encrypted, #_scheme_id_#....
@@ -200,8 +201,8 @@ impl UserBmc {
         mm: &ModelManager,
         username: &str,
     ) -> Result<Option<E>>
-    where
-        E: UserBy,
+        where
+            E: UserBy,
     {
         let db = mm.postgres_db();
 
