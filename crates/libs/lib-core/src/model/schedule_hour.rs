@@ -10,6 +10,8 @@ use crate::ctx::Ctx;
 use crate::model::base::{self, PostgresDbBmc};
 use crate::model::ModelManager;
 use crate::model::Result;
+use crate::model::schedule::{ScheduleBmc};
+use crate::model::teacher::{TeacherBmc};
 
 // region:    --- ScheduleHour Types
 
@@ -112,6 +114,44 @@ impl ScheduleHourBmc {
         E: ScheduleHourBy,
     {
         base::get::<Self, _>(ctx, mm, id).await
+    }
+
+    pub async fn get_user_schedule_hours(ctx: &Ctx, mm: &ModelManager) -> Result<Vec<ScheduleHour>> {
+        let teacher_vec = TeacherBmc::get_user_teacher(&ctx, &mm).await?;
+        let teacher = teacher_vec.first().unwrap();
+        let schedules = ScheduleBmc::get_teacher_schedule(&ctx, &mm, teacher.id).await?;
+        let schedule = schedules.first().unwrap().clone();
+
+        let filters = Some(vec![ScheduleHourFilter {
+            id: None,
+            schedule_id: Some(OpValsInt64::from(schedule.id)),
+            start_time: None,
+            end_time: None,
+            classroom_name: None,
+            subject_name: None,
+            week_day: None,
+            course: None,
+            n_hour: None,
+            cid: None,
+            ctime: None,
+            mid: None,
+            mtime: None
+        }]);
+
+        let list_options = Some(ListOptions {
+            limit: None,
+            offset: None,
+            order_bys: None
+        });
+        
+        let hours = ScheduleHourBmc::list(
+            &ctx,
+            &mm,
+            filters,
+            list_options
+        ).await?;
+        
+        Ok(hours)
     }
 
     pub async fn list(

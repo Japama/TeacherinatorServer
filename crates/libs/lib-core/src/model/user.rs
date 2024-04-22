@@ -1,3 +1,4 @@
+use log::debug;
 use modql::field::{Field, Fields, HasFields};
 use modql::filter::{FilterNodes, ListOptions, OpValsBool, OpValsInt64, OpValsString, OpValsValue};
 use sea_query::extension::postgres::PgExpr;
@@ -7,15 +8,17 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use sqlx::postgres::PgRow;
 use sqlx::FromRow;
+use time::Time;
 use uuid::Uuid;
 
 use lib_auth::pwd::{self, ContentToHash};
+use lib_utils::time::now_utc;
 
 use crate::ctx::Ctx;
-use crate::model::base::{self, add_timestamps_for_update, PostgresDbBmc};
+use crate::model::base::{self, add_timestamps_for_update, CommonIden, PostgresDbBmc};
 use crate::model::modql_utils::time_to_sea_value;
-use crate::model::ModelManager;
 use crate::model::Result;
+use crate::model::{Error, ModelManager};
 
 // region:    --- User Types
 #[serde_as]
@@ -24,6 +27,9 @@ pub struct User {
     pub id: i64,
     pub username: String,
     pub isadmin: bool,
+    pub in_center: bool,
+    pub last_checkin: Option<Time>,
+    pub last_checkout: Option<Time>,
 }
 
 #[derive(Fields, Deserialize, Clone)]
@@ -54,6 +60,13 @@ pub struct UserForUpdate {
 }
 
 #[derive(Fields, Default, Deserialize, Clone)]
+pub struct UserForCheckin {
+    pub in_center: bool,
+    pub last_checkin: Option<Time>,
+    pub last_checkout: Option<Time>,
+}
+
+#[derive(Fields, Default, Deserialize, Clone)]
 pub struct UserForUpdatePwd {
     pub username: String,
     pub isadmin: bool,
@@ -67,7 +80,8 @@ pub struct UserForLogin {
     pub isadmin: bool,
 
     // -- pwd and token info
-    pub pwd: Option<String>, // encrypted, #_scheme_id_#....
+    pub pwd: Option<String>,
+    // encrypted, #_scheme_id_#....
     pub pwd_salt: Uuid,
     pub token_salt: Uuid,
 }
@@ -85,7 +99,9 @@ pub struct UserForAuth {
 pub trait UserBy: HasFields + for<'r> FromRow<'r, PgRow> + Unpin + Send {}
 
 impl UserBy for User {}
+
 impl UserBy for UserForLogin {}
+
 impl UserBy for UserForAuth {}
 
 #[derive(Iden)]
@@ -113,6 +129,12 @@ impl UserBmc {
         E: UserBy,
     {
         base::get::<Self, _>(ctx, mm, id).await
+    }
+
+    pub async fn get_current(ctx: &Ctx, mm: &ModelManager) -> Result<User> {
+        let user: Result<User> = base::get::<Self, _>(ctx, mm, ctx.user_id()).await;
+        debug!("{}", user?.last_checkout.unwrap().to_string());
+        base::get::<Self, _>(ctx, mm, ctx.user_id()).await
     }
 
     pub async fn first_by_username<E>(
@@ -192,6 +214,50 @@ impl UserBmc {
         base::update::<Self, _>(ctx, mm, id, user_u).await
     }
 
+    pub async fn update_checkin(ctx: &Ctx, mm: &ModelManager, checkin: bool) -> Result<()> {
+        let db = mm.postgres_db();
+        let now = now_utc();
+        let mut user_c = UserForCheckin {
+            in_center: checkin,
+            last_checkin: None,
+            last_checkout: None,
+        };
+        if checkin {
+            user_c.last_checkin = Some(now.time())
+        } else {
+            user_c.last_checkout = Some(now.time())
+        }
+
+        let mut fields = user_c.not_none_fields();
+
+        add_timestamps_for_update(&mut fields, ctx.user_id());
+        let fields = fields.for_sea_update();
+
+        // -- Build query
+        let mut query = Query::update();
+        query
+            .table(UserBmc::table_ref())
+            .values(fields)
+            .and_where(Expr::col(CommonIden::Id).eq(ctx.user_id()));
+
+        // -- Exec query
+        let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
+        let count = sqlx::query_with(&sql, values)
+            .execute(db)
+            .await?
+            .rows_affected();
+
+        // -- Check result
+        if count == 0 {
+            Err(Error::EntityNotFound {
+                entity: UserBmc::TABLE,
+                id: ctx.user_id(),
+            })
+        } else {
+            Ok(())
+        }
+    }
+
     pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
         base::delete::<Self>(ctx, mm, id).await
     }
@@ -201,8 +267,8 @@ impl UserBmc {
         mm: &ModelManager,
         username: &str,
     ) -> Result<Option<E>>
-        where
-            E: UserBy,
+    where
+        E: UserBy,
     {
         let db = mm.postgres_db();
 

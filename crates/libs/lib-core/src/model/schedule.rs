@@ -74,6 +74,29 @@ impl ScheduleBmc {
         base::get::<Self, _>(ctx, mm, id).await
     }
 
+    pub async fn get_teacher_schedule(ctx: &Ctx, mm: &ModelManager, teacher_id: i64) -> Result<Vec<Schedule>>
+    {
+        let filters = Some(ScheduleFilter {
+            id: None,
+            teacher_id: Some(OpValsInt64::from(teacher_id)),
+            group_id: None,
+            course: None,
+            cid: None,
+            ctime: None,
+            mid: None,
+            mtime: None,
+        });
+
+        let list_options = Some(ListOptions {
+            limit: None,
+            offset: None,
+            order_bys: None
+        });
+
+       base::list::<Self, _, _>(ctx, mm, filters, list_options).await
+    }
+
+
     pub async fn list(
         ctx: &Ctx,
         mm: &ModelManager,

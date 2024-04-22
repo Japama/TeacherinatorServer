@@ -85,6 +85,29 @@ impl TeacherBmc {
         base::get::<Self, _>(ctx, mm, id).await
     }
 
+    pub async fn get_user_teacher(ctx: &Ctx, mm: &ModelManager) -> Result<Vec<Teacher>>
+    {
+        let filters = Some(TeacherFilter {
+            id: None,
+            user_id: Some(OpValsInt64::from(ctx.user_id())),
+            active: None,
+            department_id: None,
+            cid: None,
+            ctime: None,
+            mid: None,
+            mtime: None,
+        });
+
+        let list_options = Some(ListOptions {
+            limit: None,
+            offset: None,
+            order_bys: None
+        });
+
+        base::list::<Self, _, _>(ctx, mm, filters, list_options).await
+    }
+
+
     pub async fn list(
         ctx: &Ctx,
         mm: &ModelManager,

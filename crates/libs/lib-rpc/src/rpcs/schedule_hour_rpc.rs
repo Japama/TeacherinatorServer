@@ -12,6 +12,7 @@ pub fn rpc_router() -> RpcRouter {
         // Same as RpcRouter::new().add...
         create_schedule_hour,
         get_schedule_hour,
+        get_user_schedule_hours,
         list_schedule_hours,
         update_schedule_hour,
         delete_schedule_hour,
@@ -34,6 +35,11 @@ pub async fn get_schedule_hour(ctx: Ctx, mm: ModelManager, params: ParamsIded) -
     let ParamsIded { id } = params;
     let schedule_hour = ScheduleHourBmc::get(&ctx, &mm, id).await?;
     Ok(schedule_hour)
+}
+pub async fn get_user_schedule_hours(ctx: Ctx, mm: ModelManager) -> Result<Vec<ScheduleHour>>{
+
+    let schedule_hours = ScheduleHourBmc::get_user_schedule_hours(&ctx, &mm).await?;
+    Ok(schedule_hours)
 }
 
 pub async fn list_schedule_hours(
