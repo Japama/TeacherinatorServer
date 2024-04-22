@@ -1,7 +1,5 @@
 use lib_core::ctx::Ctx;
-use lib_core::model::user::{
-    User, UserBmc, UserFilter, UserForCreate, UserForUpdate, UserForUpdatePwd,
-};
+use lib_core::model::user::{User, UserBmc, UserFilter, UserForCreate, UserForUpdate, UserForUpdatePwd};
 use lib_core::model::ModelManager;
 
 use crate::router::RpcRouter;
@@ -14,11 +12,14 @@ pub fn rpc_router() -> RpcRouter {
         // Same as RpcRouter::new().add...
         create_user,
         get_user,
+        get_current_user,
         list_users,
         update_user,
         update_user_pwd,
         delete_user,
         check_duplicate_username,
+        user_checkin,
+        user_checkout,
     )
 }
 
@@ -66,6 +67,34 @@ pub async fn update_user(
     // let pwd = data.pwd;
     // UserBmc::update_pwd(&ctx, &mm, id, &pwd).await?;
     let user = UserBmc::get(&ctx, &mm, id).await?;
+
+    Ok(user)
+}
+
+pub async fn get_current_user(
+    ctx: Ctx,
+    mm: ModelManager,
+) -> Result<User> {
+    let user = UserBmc::get_current(&ctx, &mm).await?;
+    Ok(user)
+}
+
+pub async fn user_checkin(
+    ctx: Ctx,
+    mm: ModelManager,
+) -> Result<User> {
+    UserBmc::update_checkin(&ctx, &mm, true).await?;
+    let user = UserBmc::get(&ctx, &mm, ctx.user_id()).await?;
+
+    Ok(user)
+}
+
+pub async fn user_checkout(
+    ctx: Ctx,
+    mm: ModelManager,
+) -> Result<User> {
+    UserBmc::update_checkin(&ctx, &mm, false).await?;
+    let user = UserBmc::get(&ctx, &mm, ctx.user_id()).await?;
 
     Ok(user)
 }

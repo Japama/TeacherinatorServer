@@ -27,7 +27,7 @@ pub enum TimestampIden {
     Cid,
     Ctime,
     Mid,
-    Mtime,
+    Mtime
 }
 
 pub trait PostgresDbBmc {

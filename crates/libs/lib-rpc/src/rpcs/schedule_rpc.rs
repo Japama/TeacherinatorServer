@@ -1,6 +1,7 @@
 use lib_core::ctx::Ctx;
 use lib_core::model::ModelManager;
 use lib_core::model::schedule::{Schedule, ScheduleBmc, ScheduleFilter, ScheduleForCreate, ScheduleForUpdate};
+use lib_core::model::teacher::TeacherBmc;
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsList};
 use crate::Result;
@@ -15,6 +16,7 @@ pub fn rpc_router() -> RpcRouter {
         list_schedules,
         update_schedule,
         delete_schedule,
+        get_user_schedule,
     )
 }
 
@@ -37,6 +39,15 @@ pub async fn get_schedule(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Res
 
     Ok(schedule)
 }
+
+pub async fn get_user_schedule(ctx: Ctx, mm: ModelManager) -> Result<Schedule> {
+    let teacher_vec = TeacherBmc::get_user_teacher(&ctx, &mm).await?;
+    let teacher = teacher_vec.first().unwrap();
+    let schedules = ScheduleBmc::get_teacher_schedule(&ctx, &mm, teacher.id).await?;
+    let schedule = schedules.get(0).unwrap().clone();
+    Ok(schedule)
+}
+
 
 pub async fn list_schedules(
     ctx: Ctx,

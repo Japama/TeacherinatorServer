@@ -10,6 +10,8 @@ use crate::ctx::Ctx;
 use crate::model::base::{self, PostgresDbBmc};
 use crate::model::ModelManager;
 use crate::model::Result;
+use crate::model::schedule::{ScheduleBmc};
+use crate::model::teacher::{TeacherBmc};
 
 // region:    --- ScheduleHour Types
 
@@ -19,7 +21,8 @@ use crate::model::Result;
 pub struct ScheduleHour {
     pub id: i64,
     pub schedule_id: i64,
-    pub subject_id: i64,
+    pub subject_name: String,
+    pub classroom_name: String,
     pub week_day: i32,
     pub n_hour: i32,
     pub start_time: Time,
@@ -30,7 +33,8 @@ pub struct ScheduleHour {
 #[derive(Fields, Deserialize, Clone)]
 pub struct ScheduleHourForCreate {
     pub schedule_id: i64,
-    pub subject_id: i64,
+    pub subject_name: String,
+    pub classroom_name: String,
     pub week_day: i32,
     pub n_hour: i32,
     pub start_time: Time,
@@ -42,8 +46,9 @@ pub struct ScheduleHourForCreate {
 pub struct ScheduleHourFilter {
     id: Option<OpValsInt64>,
 
-    schedule_id: Option<OpValsInt64>,    
-    subject_id: Option<OpValsInt64>,
+    schedule_id: Option<OpValsInt64>,
+    subject_name: Option<OpValsInt64>,
+    classroom_name: Option<OpValsInt64>,
     week_day: Option<OpValsInt64>,
     n_hour: Option<OpValsInt64>,
     #[modql(to_sea_value_fn = "time_to_sea_value")]
@@ -64,7 +69,8 @@ impl Default for ScheduleHourForUpdate {
     fn default() -> Self {
         Self {
             schedule_id: 0,
-            subject_id: 0, // default value
+            subject_name: "".to_string(), // default value
+            classroom_name: "".to_string(), // default value
             week_day: 0,   // default value
             n_hour: 0,     // default value
             start_time: Time::MIDNIGHT  /* provide a value */,
@@ -77,7 +83,8 @@ impl Default for ScheduleHourForUpdate {
 #[derive(Fields, Deserialize)]
 pub struct ScheduleHourForUpdate {
     pub schedule_id: i64,
-    pub subject_id: i64,
+    pub subject_name: String,
+    pub classroom_name: String,
     pub week_day: i32,
     pub n_hour: i32,
     pub start_time: Time,
@@ -107,6 +114,44 @@ impl ScheduleHourBmc {
         E: ScheduleHourBy,
     {
         base::get::<Self, _>(ctx, mm, id).await
+    }
+
+    pub async fn get_user_schedule_hours(ctx: &Ctx, mm: &ModelManager) -> Result<Vec<ScheduleHour>> {
+        let teacher_vec = TeacherBmc::get_user_teacher(&ctx, &mm).await?;
+        let teacher = teacher_vec.first().unwrap();
+        let schedules = ScheduleBmc::get_teacher_schedule(&ctx, &mm, teacher.id).await?;
+        let schedule = schedules.first().unwrap().clone();
+
+        let filters = Some(vec![ScheduleHourFilter {
+            id: None,
+            schedule_id: Some(OpValsInt64::from(schedule.id)),
+            start_time: None,
+            end_time: None,
+            classroom_name: None,
+            subject_name: None,
+            week_day: None,
+            course: None,
+            n_hour: None,
+            cid: None,
+            ctime: None,
+            mid: None,
+            mtime: None
+        }]);
+
+        let list_options = Some(ListOptions {
+            limit: None,
+            offset: None,
+            order_bys: None
+        });
+        
+        let hours = ScheduleHourBmc::list(
+            &ctx,
+            &mm,
+            filters,
+            list_options
+        ).await?;
+        
+        Ok(hours)
     }
 
     pub async fn list(
