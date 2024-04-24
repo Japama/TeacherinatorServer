@@ -6,9 +6,9 @@ use axum::response::{IntoResponse, Response};
 use axum::routing::post;
 use serde_json::{json, Value};
 
-use lib_core::model::{ModelManager};
+use lib_core::model::ModelManager;
+use lib_rpc::{center_schedule_hour_rpc, classroom_rpc, department_rpc, group_rpc, RpcRequest, RpcResources, schedule_hour_rpc, schedule_rpc, subject_rpc, teacher_rpc, user_rpc};
 use lib_rpc::router::RpcRouter;
-use lib_rpc::{classroom_rpc, department_rpc, group_rpc, RpcRequest, RpcResources, schedule_hour_rpc, schedule_rpc, subject_rpc, teacher_rpc, user_rpc};
 
 use crate::web::mw_auth::CtxW;
 
@@ -41,6 +41,7 @@ pub fn routes(rpc_state: RpcState) -> Router {
         .extend(classroom_rpc::rpc_router())
         .extend(schedule_rpc::rpc_router())
         .extend(schedule_hour_rpc::rpc_router())
+        .extend(center_schedule_hour_rpc::rpc_router())
         .extend(group_rpc::rpc_router());
 
     // Build the Axum Router for '/rpc'

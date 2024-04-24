@@ -30,7 +30,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # -- Others
 uuid = { version = "1", features = ["v4", "fast-rng", ] }
-time = { version = "0.3", features = ["formatting", "parsing", "serde"] }
+time = { version = "0.3", features = ["formatting", "parsing", "serde", "local-offset"] }
 strum_macros = "0.25"
 enum_dispatch = "0.3"
 derive_more = { version = "1.0.0-beta", features = ["from"] }
@@ -40,6 +40,7 @@ bson = { version = "2", features = ["chrono-0_4"] } # Needed for using chrono da
 
 futures = "0.3"
 log = "0.4.20"
+chrono = "0.4.31"
 
 [dev-dependencies]
 anyhow = "1"

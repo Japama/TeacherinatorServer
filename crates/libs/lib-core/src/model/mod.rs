@@ -35,6 +35,8 @@ pub mod group;
 pub mod classroom;
 pub mod schedule;
 pub mod schedule_hour;
+pub mod control;
+pub mod center_schedule_hour;
 
 // endregion: --- Modules
 

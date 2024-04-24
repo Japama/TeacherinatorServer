@@ -16,40 +16,39 @@ use crate::model::Result;
 use crate::model::schedule::ScheduleBmc;
 use crate::model::teacher::TeacherBmc;
 
-// region:    --- ScheduleHour Types
+// region:    --- CenterScheduleHour Types
 
 
 #[serde_as]
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
-pub struct ScheduleHour {
+pub struct CenterScheduleHour {
     pub id: i64,
-    pub schedule_id: i64,
-    pub subject_name: String,
-    pub classroom_name: String,
     pub week_day: i32,
     pub n_hour: i32,
+    pub start_time: Time,
+    pub end_time: Time,
     pub course: i32    
 }
 
 #[derive(Fields, Deserialize, Clone)]
-pub struct ScheduleHourForCreate {
-    pub schedule_id: i64,
-    pub subject_name: String,
-    pub classroom_name: String,
+pub struct CenterScheduleHourForCreate {
     pub week_day: i32,
     pub n_hour: i32,
+    pub start_time: Time,
+    pub end_time: Time,
     pub course: i32
 }
 
 #[derive(FilterNodes, Deserialize, Default, Debug)]
-pub struct ScheduleHourFilter {
+pub struct CenterScheduleHourFilter {
     id: Option<OpValsInt64>,
 
-    schedule_id: Option<OpValsInt64>,
-    subject_name: Option<OpValsInt64>,
-    classroom_name: Option<OpValsInt64>,
     week_day: Option<OpValsInt64>,
     n_hour: Option<OpValsInt64>,
+    #[modql(to_sea_value_fn = "time_to_sea_value")]
+    pub(crate) start_time: Option<OpValsValue>,
+    #[modql(to_sea_value_fn = "time_to_sea_value")]
+    pub(crate) end_time: Option<OpValsValue>,
     course: Option<OpValsInt64>,
 
     cid: Option<OpValsInt64>,
@@ -60,138 +59,65 @@ pub struct ScheduleHourFilter {
     mtime: Option<OpValsValue>,
 }
 
-impl Default for ScheduleHourForUpdate {
+impl Default for CenterScheduleHourForUpdate {
     fn default() -> Self {
         Self {
-            schedule_id: 0,
-            subject_name: "".to_string(), // default value
-            classroom_name: "".to_string(), // default value
             week_day: 0,   // default value
             n_hour: 0,     // default value
+            start_time: Time::MIDNIGHT  /* provide a value */,
+            end_time: Time::MIDNIGHT    /* provide a value */,
             course: 0,     // default value
         }
     }
 }
 
 #[derive(Fields, Deserialize)]
-pub struct ScheduleHourForUpdate {
-    pub schedule_id: i64,
-    pub subject_name: String,
-    pub classroom_name: String,
+pub struct CenterScheduleHourForUpdate {
     pub week_day: i32,
     pub n_hour: i32,
+    pub start_time: Time,
+    pub end_time: Time,
     pub course: i32
 }
 
 /// Marker trait
-pub trait ScheduleHourBy: HasFields + for<'r> FromRow<'r, PgRow> + Unpin + Send {}
-impl ScheduleHourBy for ScheduleHour {}
+pub trait CenterScheduleHourBy: HasFields + for<'r> FromRow<'r, PgRow> + Unpin + Send {}
+impl CenterScheduleHourBy for CenterScheduleHour {}
 
-// endregion: --- ScheduleHour Types
+// endregion: --- CenterScheduleHour Types
 
-pub struct ScheduleHourBmc;
+pub struct CenterScheduleHourBmc;
 
-impl PostgresDbBmc for ScheduleHourBmc {
-    const TABLE: &'static str = "schedule_hours";
+impl PostgresDbBmc for CenterScheduleHourBmc {
+    const TABLE: &'static str = "center_schedule_hours";
 }
 
-impl ScheduleHourBmc {
-    pub async fn create(ctx: &Ctx, mm: &ModelManager, schedule_hour_c: ScheduleHourForCreate) -> Result<i64> {
+impl CenterScheduleHourBmc {
+    pub async fn create(ctx: &Ctx, mm: &ModelManager, schedule_hour_c: CenterScheduleHourForCreate) -> Result<i64> {
         base::create::<Self, _>(ctx, mm, schedule_hour_c).await
     }
 
     pub async fn get<E>(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<E>
     where
-        E: ScheduleHourBy,
+        E: CenterScheduleHourBy,
     {
         base::get::<Self, _>(ctx, mm, id).await
     }
 
-    pub async fn get_user_schedule_hours(ctx: &Ctx, mm: &ModelManager) -> Result<Vec<ScheduleHour>> {
-        let teacher_vec = TeacherBmc::get_user_teacher(&ctx, &mm).await?;
-        let teacher = teacher_vec.first().unwrap();
-        let schedules = ScheduleBmc::get_teacher_schedule(&ctx, &mm, teacher.id).await?;
-        let schedule = schedules.first().unwrap().clone();
-
-        let filters = Some(vec![ScheduleHourFilter {
-            id: None,
-            schedule_id: Some(OpValsInt64::from(schedule.id)),
-            classroom_name: None,
-            subject_name: None,
-            week_day: None,
-            course: None,
-            n_hour: None,
-            cid: None,
-            ctime: None,
-            mid: None,
-            mtime: None
-        }]);
-
-        let list_options = Some(ListOptions {
-            limit: None,
-            offset: None,
-            order_bys: None
-        });
-        
-        let hours = ScheduleHourBmc::list(
-            &ctx,
-            &mm,
-            filters,
-            list_options
-        ).await?;
-        
-        Ok(hours)
-    }
-
-    pub async fn get_current_schedule_hours(ctx: &Ctx, mm: &ModelManager) -> Result<Vec<ScheduleHour>> {
-        let now = Utc::now();
-        
-        // Implementar horario de centro y coger las n_hour
-        
-        let filters = Some(vec![ScheduleHourFilter {
-            id: None,
-            schedule_id: None,
-            classroom_name: None,
-            subject_name: None,
-            week_day: None,
-            course: None,
-            n_hour: None,
-            cid: None,
-            ctime: None,
-            mid: None,
-            mtime: None
-        }]);
-
-        let list_options = Some(ListOptions {
-            limit: None,
-            offset: None,
-            order_bys: None
-        });
-
-        let hours = ScheduleHourBmc::list(&ctx, &mm, filters, list_options).await?;
-
-        Ok(hours)
-    }
-
-    // Función para convertir DateTime<Utc> a NaiveTime
-
-
-
     pub async fn list(
         ctx: &Ctx,
         mm: &ModelManager,
-        filters: Option<Vec<ScheduleHourFilter>>,
+        filters: Option<Vec<CenterScheduleHourFilter>>,
         list_options: Option<ListOptions>,
-    ) -> Result<Vec<ScheduleHour>> {
+    ) -> Result<Vec<CenterScheduleHour>> {
         base::list::<Self, _, _>(ctx, mm, filters, list_options).await
     }
-
-
+    
     pub async fn update(
         ctx: &Ctx,
         mm: &ModelManager,
         id: i64,
-        schedule_hour_u: ScheduleHourForUpdate,
+        schedule_hour_u: CenterScheduleHourForUpdate,
     ) -> Result<()> {
         base::update::<Self, _>(ctx, mm, id, schedule_hour_u).await
     }
@@ -214,7 +140,7 @@ mod tests {
     use crate::ctx::Ctx;
     use crate::model::department::DepartmentBmc;
     use crate::model::schedule::ScheduleBmc;
-    use crate::model::schedule_hour::{ScheduleHour, ScheduleHourBmc, ScheduleHourForCreate, ScheduleHourForUpdate};
+    use crate::model::schedule_hour::{CenterScheduleHour, CenterScheduleHourBmc, CenterScheduleHourForCreate, CenterScheduleHourForUpdate};
     use crate::model::subject::SubjectBmc;
     use crate::model::teacher::TeacherBmc;
     use crate::model::user::UserBmc;
@@ -228,6 +154,9 @@ mod tests {
         let fx_subject_name = "subject_create_ok";
         let fx_week_day = 1; // lunes
         let fx_n_hour = 1; // 08:00-08:50
+        let fx_start_time = Time::MIDNIGHT;
+        let fx_start_time = fx_start_time.replace_hour(8)?;
+        let fx_start_time = fx_start_time.replace_minute(0)?;
         let fx_end_time = Time::MIDNIGHT;
         let fx_end_time = fx_end_time.replace_hour(8)?;
         let fx_end_time = fx_end_time.replace_minute(50)?;
@@ -244,22 +173,24 @@ mod tests {
         let fx_schedule_id= seed_schedule(&ctx, &mm, fx_course, fx_teacher_id, -1).await?;
 
         // -- Exec
-        let schedule_hour_c = ScheduleHourForCreate {
+        let schedule_hour_c = CenterScheduleHourForCreate {
             schedule_id: fx_schedule_id,
             subject_id: fx_subject_id,
             week_day: fx_week_day,
             n_hour: fx_n_hour,
+            start_time: fx_start_time,
+            end_time: fx_end_time,
             course: fx_course
         };
 
-        let id = ScheduleHourBmc::create(&ctx, &mm, schedule_hour_c).await?;
+        let id = CenterScheduleHourBmc::create(&ctx, &mm, schedule_hour_c).await?;
 
         // -- Check
-        let schedule_hour: ScheduleHour = ScheduleHourBmc::get(&ctx, &mm, id).await?;
+        let schedule_hour: CenterScheduleHour = CenterScheduleHourBmc::get(&ctx, &mm, id).await?;
         assert_eq!(schedule_hour.course, fx_course);
 
         // -- Clean
-        ScheduleHourBmc::delete(&ctx, &mm, id).await?;
+        CenterScheduleHourBmc::delete(&ctx, &mm, id).await?;
         ScheduleBmc::delete(&ctx, &mm, fx_schedule_id).await?;
         TeacherBmc::delete(&ctx, &mm, fx_teacher_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
@@ -279,6 +210,9 @@ mod tests {
         let fx_week_day = 1; // Lunes
         let fx_week_day_new= 2; // Martes
         let fx_n_hour = 1; // 08:00-08:50
+        let fx_start_time = Time::MIDNIGHT;
+        let fx_start_time = fx_start_time.replace_hour(8)?;
+        let fx_start_time = fx_start_time.replace_minute(0)?;
         let fx_end_time = Time::MIDNIGHT;
         let fx_end_time = fx_end_time.replace_hour(8)?;
         let fx_end_time = fx_end_time.replace_minute(50)?;
@@ -296,26 +230,28 @@ mod tests {
         let fx_schedule_hour_id = _dev_utils::seed_schedule_hour(&ctx, &mm, fx_schedule_id, fx_subject_id, fx_week_day, fx_n_hour, fx_start_time, fx_end_time, fx_course).await?;
 
         // -- Exec
-        ScheduleHourBmc::update(
+        CenterScheduleHourBmc::update(
             &ctx,
             &mm,
             fx_schedule_hour_id,
-            ScheduleHourForUpdate {
+            CenterScheduleHourForUpdate {
                 schedule_id: fx_schedule_id,
                 subject_id: fx_subject_id,
                 week_day: fx_week_day_new,
                 course: fx_course,
+                start_time: fx_start_time,
+                end_time: fx_end_time,
                 n_hour: fx_n_hour
             },
         )
             .await?;
 
         // -- Check
-        let schedule_hour: ScheduleHour = ScheduleHourBmc::get(&ctx, &mm, fx_schedule_hour_id).await?;
+        let schedule_hour: CenterScheduleHour = CenterScheduleHourBmc::get(&ctx, &mm, fx_schedule_hour_id).await?;
         assert_eq!(schedule_hour.week_day, fx_week_day_new);
 
         // -- Clean
-        ScheduleHourBmc::delete(&ctx, &mm, fx_schedule_hour_id).await?;
+        CenterScheduleHourBmc::delete(&ctx, &mm, fx_schedule_hour_id).await?;
         ScheduleBmc::delete(&ctx, &mm, fx_schedule_id).await?;
         TeacherBmc::delete(&ctx, &mm, fx_teacher_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
@@ -335,6 +271,12 @@ mod tests {
         let fx_week_day = 1; // Lunes
         let fx_week_day_2= 2; // Martes
         let fx_n_hour = 1; // 08:00-08:50
+        let fx_start_time = Time::MIDNIGHT;
+        let fx_start_time = fx_start_time.replace_hour(8)?;
+        let fx_start_time = fx_start_time.replace_minute(0)?;
+        let fx_end_time = Time::MIDNIGHT;
+        let fx_end_time = fx_end_time.replace_hour(8)?;
+        let fx_end_time = fx_end_time.replace_minute(50)?;
         let fx_course = 2024;
 
         let fx_username = "Prueba_list_by_course_ok";
@@ -355,7 +297,7 @@ mod tests {
         });
         let filter = vec![serde_json::from_value(filter_json)?];
     
-        let schedule_hours = ScheduleHourBmc::list(&ctx, &mm, Some(filter), None).await?;
+        let schedule_hours = CenterScheduleHourBmc::list(&ctx, &mm, Some(filter), None).await?;
     
         // -- Check
         // let schedule_hours: Vec<String> = schedule_hours.into_iter().map(|s| s.course.to_string()).collect();
@@ -365,8 +307,8 @@ mod tests {
         // assert_eq!(&schedule_hours, &fx_schedule_hours);
     
         // -- Cleanup
-        ScheduleHourBmc::delete(&ctx, &mm, fx_schedule_hour_id_01).await?;
-        ScheduleHourBmc::delete(&ctx, &mm, fx_schedule_hour_id_02).await?;
+        CenterScheduleHourBmc::delete(&ctx, &mm, fx_schedule_hour_id_01).await?;
+        CenterScheduleHourBmc::delete(&ctx, &mm, fx_schedule_hour_id_02).await?;
         ScheduleBmc::delete(&ctx, &mm, fx_schedule_id).await?;
         TeacherBmc::delete(&ctx, &mm, fx_teacher_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
