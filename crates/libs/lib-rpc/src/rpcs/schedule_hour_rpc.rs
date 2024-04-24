@@ -1,6 +1,9 @@
+use modql::filter::{ListOptions, OpValsInt64};
 use lib_core::ctx::Ctx;
 use lib_core::model::ModelManager;
+use lib_core::model::schedule::ScheduleBmc;
 use lib_core::model::schedule_hour::{ScheduleHour, ScheduleHourBmc, ScheduleHourFilter, ScheduleHourForCreate, ScheduleHourForUpdate};
+use lib_core::model::teacher::TeacherBmc;
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsList};
 use crate::Result;
@@ -37,8 +40,20 @@ pub async fn get_schedule_hour(ctx: Ctx, mm: ModelManager, params: ParamsIded) -
     Ok(schedule_hour)
 }
 pub async fn get_user_schedule_hours(ctx: Ctx, mm: ModelManager) -> Result<Vec<ScheduleHour>>{
+    let teacher_vec = TeacherBmc::get_user_teacher(&ctx, &mm).await?;
+    let teacher = teacher_vec.first().unwrap();
+    let schedules = ScheduleBmc::get_teacher_schedule(&ctx, &mm, teacher.id).await?;
+    let schedule = schedules.first().unwrap().clone();
 
-    let schedule_hours = ScheduleHourBmc::get_user_schedule_hours(&ctx, &mm).await?;
+    let filters = Some(vec![ScheduleHourFilter {
+        id: None,
+        schedule_id: Some(OpValsInt64::from(schedule.id)),
+        classroom_name: None, subject_name: None, week_day: None, course: None, n_hour: None, cid: None, ctime: None, mid: None, mtime: None
+    }]);
+
+    let list_options = Some(ListOptions { limit: None, offset: None, order_bys: None });
+
+    let schedule_hours = ScheduleHourBmc::list(&ctx, &mm, filters, list_options).await?;
     Ok(schedule_hours)
 }
 

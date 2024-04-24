@@ -59,13 +59,13 @@ fn iniciar_programador_tareas() {
     scheduler.every(1.minutes()).run(move || {
         let mut rt = tokio::runtime::Runtime::new().unwrap();
         rt.block_on(async {
+            println!("Ejecutando tarea diaria...");
             let mm = ModelManager::new().await.unwrap();
             let ctx = Ctx::root_ctx(); // o Ctx::new(user_id).unwrap(); si tienes un user_id específico
-            // let hours = ControlBmc::update_guards(&ctx, &mm).await.unwrap();
+            let hours = ControlBmc::update_guards(&ctx, &mm).await.unwrap();
             // for hour in hours {
             //     println!("{}", hour.start_time)
             // }
-            println!("Ejecutando tarea diaria...");
         });
         
     });

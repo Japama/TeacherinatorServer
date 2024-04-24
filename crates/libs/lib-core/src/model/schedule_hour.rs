@@ -1,20 +1,15 @@
-use chrono::{DateTime, NaiveDateTime, NaiveTime, Timelike, Utc};
 use modql::field::{Fields, HasFields};
-use modql::filter::{FilterNodes, ListOptions, OpValsInt64, OpValsValue, OpValValue};
+use modql::filter::{FilterNodes, ListOptions, OpValsInt32, OpValsInt64, OpValsString, OpValsValue, OpValValue};
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
 use serde_with::serde_as;
 use sqlx::FromRow;
 use sqlx::postgres::PgRow;
-use time::Time;
 
 use crate::ctx::Ctx;
 use crate::model::base::{self, PostgresDbBmc};
 use crate::model::ModelManager;
 use crate::model::modql_utils::time_to_sea_value;
 use crate::model::Result;
-use crate::model::schedule::ScheduleBmc;
-use crate::model::teacher::TeacherBmc;
 
 // region:    --- ScheduleHour Types
 
@@ -28,7 +23,7 @@ pub struct ScheduleHour {
     pub classroom_name: String,
     pub week_day: i32,
     pub n_hour: i32,
-    pub course: i32    
+    pub course: i32
 }
 
 #[derive(Fields, Deserialize, Clone)]
@@ -43,21 +38,21 @@ pub struct ScheduleHourForCreate {
 
 #[derive(FilterNodes, Deserialize, Default, Debug)]
 pub struct ScheduleHourFilter {
-    id: Option<OpValsInt64>,
+    pub id: Option<OpValsInt64>,
 
-    schedule_id: Option<OpValsInt64>,
-    subject_name: Option<OpValsInt64>,
-    classroom_name: Option<OpValsInt64>,
-    week_day: Option<OpValsInt64>,
-    n_hour: Option<OpValsInt64>,
-    course: Option<OpValsInt64>,
+    pub schedule_id: Option<OpValsInt64>,
+    pub subject_name: Option<OpValsString>,
+    pub classroom_name: Option<OpValsString>,
+    pub week_day: Option<OpValsInt64>,
+    pub n_hour: Option<OpValsInt64>,
+    pub course: Option<OpValsInt64>,
 
-    cid: Option<OpValsInt64>,
+    pub cid: Option<OpValsInt64>,
     #[modql(to_sea_value_fn = "time_to_sea_value")]
-    ctime: Option<OpValsValue>,
-    mid: Option<OpValsInt64>,
+    pub ctime: Option<OpValsValue>,
+    pub mid: Option<OpValsInt64>,
     #[modql(to_sea_value_fn = "time_to_sea_value")]
-    mtime: Option<OpValsValue>,
+    pub mtime: Option<OpValsValue>,
 }
 
 impl Default for ScheduleHourForUpdate {
@@ -107,76 +102,7 @@ impl ScheduleHourBmc {
         base::get::<Self, _>(ctx, mm, id).await
     }
 
-    pub async fn get_user_schedule_hours(ctx: &Ctx, mm: &ModelManager) -> Result<Vec<ScheduleHour>> {
-        let teacher_vec = TeacherBmc::get_user_teacher(&ctx, &mm).await?;
-        let teacher = teacher_vec.first().unwrap();
-        let schedules = ScheduleBmc::get_teacher_schedule(&ctx, &mm, teacher.id).await?;
-        let schedule = schedules.first().unwrap().clone();
-
-        let filters = Some(vec![ScheduleHourFilter {
-            id: None,
-            schedule_id: Some(OpValsInt64::from(schedule.id)),
-            classroom_name: None,
-            subject_name: None,
-            week_day: None,
-            course: None,
-            n_hour: None,
-            cid: None,
-            ctime: None,
-            mid: None,
-            mtime: None
-        }]);
-
-        let list_options = Some(ListOptions {
-            limit: None,
-            offset: None,
-            order_bys: None
-        });
-        
-        let hours = ScheduleHourBmc::list(
-            &ctx,
-            &mm,
-            filters,
-            list_options
-        ).await?;
-        
-        Ok(hours)
-    }
-
-    pub async fn get_current_schedule_hours(ctx: &Ctx, mm: &ModelManager) -> Result<Vec<ScheduleHour>> {
-        let now = Utc::now();
-        
-        // Implementar horario de centro y coger las n_hour
-        
-        let filters = Some(vec![ScheduleHourFilter {
-            id: None,
-            schedule_id: None,
-            classroom_name: None,
-            subject_name: None,
-            week_day: None,
-            course: None,
-            n_hour: None,
-            cid: None,
-            ctime: None,
-            mid: None,
-            mtime: None
-        }]);
-
-        let list_options = Some(ListOptions {
-            limit: None,
-            offset: None,
-            order_bys: None
-        });
-
-        let hours = ScheduleHourBmc::list(&ctx, &mm, filters, list_options).await?;
-
-        Ok(hours)
-    }
-
     // Función para convertir DateTime<Utc> a NaiveTime
-
-
-
     pub async fn list(
         ctx: &Ctx,
         mm: &ModelManager,

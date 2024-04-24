@@ -1,8 +1,7 @@
-use chrono::{DateTime, NaiveDateTime, NaiveTime, Timelike, Utc};
+use chrono::{Timelike};
 use modql::field::{Fields, HasFields};
-use modql::filter::{FilterNodes, ListOptions, OpValsInt64, OpValsValue, OpValValue};
+use modql::filter::{FilterNodes, ListOptions, OpValsInt64, OpValsValue};
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
 use serde_with::serde_as;
 use sqlx::FromRow;
 use sqlx::postgres::PgRow;
@@ -13,8 +12,6 @@ use crate::model::base::{self, PostgresDbBmc};
 use crate::model::ModelManager;
 use crate::model::modql_utils::time_to_sea_value;
 use crate::model::Result;
-use crate::model::schedule::ScheduleBmc;
-use crate::model::teacher::TeacherBmc;
 
 // region:    --- CenterScheduleHour Types
 
@@ -27,7 +24,7 @@ pub struct CenterScheduleHour {
     pub n_hour: i32,
     pub start_time: Time,
     pub end_time: Time,
-    pub course: i32    
+    pub course: i32
 }
 
 #[derive(Fields, Deserialize, Clone)]
