@@ -23,7 +23,8 @@ pub struct ScheduleHour {
     pub classroom_name: String,
     pub week_day: i32,
     pub n_hour: i32,
-    pub course: i32
+    pub course: i32,
+    pub notes: Option<String>
 }
 
 #[derive(Fields, Deserialize, Clone)]
@@ -33,7 +34,8 @@ pub struct ScheduleHourForCreate {
     pub classroom_name: String,
     pub week_day: i32,
     pub n_hour: i32,
-    pub course: i32
+    pub course: i32,
+    pub notes: Option<String>
 }
 
 #[derive(FilterNodes, Deserialize, Default, Debug)]
@@ -43,9 +45,10 @@ pub struct ScheduleHourFilter {
     pub schedule_id: Option<OpValsInt64>,
     pub subject_name: Option<OpValsString>,
     pub classroom_name: Option<OpValsString>,
-    pub week_day: Option<OpValsInt64>,
-    pub n_hour: Option<OpValsInt64>,
-    pub course: Option<OpValsInt64>,
+    pub week_day: Option<OpValsInt32>,
+    pub n_hour: Option<OpValsInt32>,
+    pub course: Option<OpValsInt32>,
+    pub notes: Option<OpValsString>,
 
     pub cid: Option<OpValsInt64>,
     #[modql(to_sea_value_fn = "time_to_sea_value")]
@@ -64,6 +67,7 @@ impl Default for ScheduleHourForUpdate {
             week_day: 0,   // default value
             n_hour: 0,     // default value
             course: 0,     // default value
+            notes: Some("".to_string())
         }
     }
 }
@@ -75,7 +79,8 @@ pub struct ScheduleHourForUpdate {
     pub classroom_name: String,
     pub week_day: i32,
     pub n_hour: i32,
-    pub course: i32
+    pub course: i32,
+    pub notes: Option<String>
 }
 
 /// Marker trait

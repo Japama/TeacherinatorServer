@@ -148,6 +148,7 @@ CREATE TABLE schedule_hours
     week_day       INT                      NOT NULL,
     n_hour         INT                      NOT NULL,
     course         INT                      NOT NULL,
+    notes          varchar(256),
 
     -- Timestamps
     cid            bigint                   NOT NULL,

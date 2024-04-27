@@ -48,7 +48,7 @@ pub async fn get_user_schedule_hours(ctx: Ctx, mm: ModelManager) -> Result<Vec<S
     let filters = Some(vec![ScheduleHourFilter {
         id: None,
         schedule_id: Some(OpValsInt64::from(schedule.id)),
-        classroom_name: None, subject_name: None, week_day: None, course: None, n_hour: None, cid: None, ctime: None, mid: None, mtime: None
+        classroom_name: None, subject_name: None, week_day: None, course: None, n_hour: None, notes: None, cid: None, ctime: None, mid: None, mtime: None
     }]);
 
     let list_options = Some(ListOptions { limit: None, offset: None, order_bys: None });

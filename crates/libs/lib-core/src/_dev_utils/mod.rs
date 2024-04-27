@@ -158,7 +158,8 @@ pub async fn seed_schedule_hour(ctx: &Ctx, mm: &ModelManager, schedule_id: i64, 
             classroom_name: classroom_name.to_string(),
             week_day,
             n_hour,
-            course
+            course,
+            notes: Some("".to_string())
         },
     )
         .await
