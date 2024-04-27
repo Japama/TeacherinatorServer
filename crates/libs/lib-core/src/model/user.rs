@@ -356,6 +356,7 @@ mod tests {
         let fx_username = "Juanba test update";
         let fx_username_new = "Juanba test update Petao";
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
+        let fx_admin = true;
 
         // -- Exec
         UserBmc::update(
@@ -364,6 +365,7 @@ mod tests {
             fx_user_id,
             UserForUpdate {
                 username: fx_username_new.to_string(),
+                isadmin: fx_admin
             },
         )
         .await?;

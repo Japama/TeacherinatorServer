@@ -6,6 +6,7 @@ use tracing::info;
 
 use crate::ctx::Ctx;
 use crate::model::{self, ModelManager};
+use crate::model::center_schedule_hour::{CenterScheduleHourBmc, CenterScheduleHourForCreate};
 use crate::model::classroom::{ClassroomBmc, ClassroomForCreate};
 use crate::model::department::{DepartmentBmc, DepartmentForCreate};
 use crate::model::group::{GroupBmc, GroupForCreate};
@@ -71,12 +72,12 @@ pub async fn seed_department(ctx: &Ctx, mm: &ModelManager, name: &str) -> model:
 }
 
 
-pub async fn seed_teacher(ctx: &Ctx, mm: &ModelManager, department_id: i64, user_id: i64) -> model::Result<i64> {
+pub async fn seed_teacher(ctx: &Ctx, mm: &ModelManager, department_id: i64, user_id: i64, active: bool) -> model::Result<i64> {
     TeacherBmc::create(
         ctx,
         mm,
         TeacherForCreate {
-            active: true,
+            active,
             department_id,
             user_id,
         },
@@ -115,7 +116,7 @@ pub async fn seed_group(ctx: &Ctx, mm: &ModelManager, letter: &str, course: i32,
 }
 
 
-pub async fn seed_classroom(ctx: &Ctx, mm: &ModelManager, building: &str, floor: i32, number: i32, name: &str, type_c: i32, description: &str)  -> model::Result<i64> {
+pub async fn seed_classroom(ctx: &Ctx, mm: &ModelManager, building: &str, floor: i32, number: i32, name: &str, type_c: i32, description: &str) -> model::Result<i64> {
     ClassroomBmc::create(
         ctx,
         mm,
@@ -131,7 +132,7 @@ pub async fn seed_classroom(ctx: &Ctx, mm: &ModelManager, building: &str, floor:
         .await
 }
 
-pub async fn seed_schedule(ctx: &Ctx, mm: &ModelManager, course: i32, teacher_id: i64, group_id: i64)  -> model::Result<i64> {
+pub async fn seed_schedule(ctx: &Ctx, mm: &ModelManager, course: i32, teacher_id: i64, group_id: i64) -> model::Result<i64> {
     let teacher = if teacher_id == -1 { None } else { Some(teacher_id) };
     let group= if group_id == -1 { None } else { Some(group_id) };
 
@@ -148,7 +149,7 @@ pub async fn seed_schedule(ctx: &Ctx, mm: &ModelManager, course: i32, teacher_id
 }
 
 
-pub async fn seed_schedule_hour(ctx: &Ctx, mm: &ModelManager, schedule_id: i64, subject_name: &str, classroom_name: &str, week_day: i32, n_hour: i32, start_time: Time, end_time: Time, course: i32 )  -> model::Result<i64> {
+pub async fn seed_schedule_hour(ctx: &Ctx, mm: &ModelManager, schedule_id: i64, subject_name: &str, classroom_name: &str, week_day: i32, n_hour: i32, course: i32) -> model::Result<i64> {
     ScheduleHourBmc::create(
         ctx,
         mm,
@@ -160,6 +161,21 @@ pub async fn seed_schedule_hour(ctx: &Ctx, mm: &ModelManager, schedule_id: i64, 
             n_hour,
             course,
             notes: Some("".to_string())
+        },
+    )
+        .await
+}
+
+pub async fn seed_center_schedule_hour(ctx: &Ctx, mm: &ModelManager, week_day: i32, n_hour: i32, start_time: Time, end_time: Time, course: i32) -> model::Result<i64> {
+    CenterScheduleHourBmc::create(
+        ctx,
+        mm,
+        CenterScheduleHourForCreate {
+            week_day,
+            n_hour,
+            start_time,
+            end_time,
+            course
         },
     )
         .await

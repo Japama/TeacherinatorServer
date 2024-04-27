@@ -133,12 +133,12 @@ mod tests {
         let fx_letter = "A";
 
         let fx_username = "username_create_ok";
-        let fx_teacher_name = "teacher_name_create_ok";
         let fx_department_name = "department_name_create_ok";
-
+        let fx_active = true;
+        
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_tutor_id = _dev_utils::seed_teacher(&ctx, &mm, fx_teacher_name, fx_department_id, fx_user_id).await?;
+        let fx_tutor_id = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id, fx_active).await?;
         
         // -- Exec
         let group_c = GroupForCreate {
@@ -185,14 +185,14 @@ mod tests {
         let fx_letter_new = "B";
 
         let fx_usernames = &["Prueba01", "Prueba02"];
-        let fx_teacher_names =  &["teacher_name_update_ok_01", "teacher_name_update_ok_02"];
         let fx_department_name = "department_name_update_ok";
-
+        let fx_active = true;
+        
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_usernames[0]).await?;
         let fx_user_id_new = _dev_utils::seed_user(&ctx, &mm, fx_usernames[1]).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_tutor_id = _dev_utils::seed_teacher(&ctx, &mm, fx_teacher_names[0], fx_department_id, fx_user_id).await?;
-        let fx_tutor_id_new = _dev_utils::seed_teacher(&ctx, &mm, fx_teacher_names[1], fx_department_id, fx_user_id_new).await?;
+        let fx_tutor_id = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id, fx_active).await?;
+        let fx_tutor_id_new = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id_new, fx_active).await?;
         let fx_group_id = _dev_utils::seed_group(&ctx, &mm, fx_letter, fx_course, fx_stage, fx_year, fx_tutor_id).await?;
 
         // -- Exec
@@ -242,14 +242,14 @@ mod tests {
         let fx_course = 1;
         let fx_stage = 1;
         let fx_year = 2024;
-
+        let fx_active = true;
+        
         let fx_username = "username_list_by_name_ok";
-        let fx_teacher_name = "teacher_name_list_by_name_ok";
         let fx_department_name = "department_name_list_by_name_ok";
 
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_tutor_id = _dev_utils::seed_teacher(&ctx, &mm, fx_teacher_name, fx_department_id, fx_user_id).await?;
+        let fx_tutor_id = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id, fx_active).await?;
 
 
         let fx_id_01 = _dev_utils::seed_group(&ctx, &mm, fx_letters[0], fx_course, fx_stage, fx_year, fx_tutor_id).await?;

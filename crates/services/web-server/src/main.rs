@@ -22,10 +22,9 @@ use lib_core::_dev_utils;
 use lib_core::ctx::Ctx;
 use lib_core::model::control::ControlBmc;
 use lib_core::model::ModelManager;
-use lib_core::model::user::UserBmc;
 
 use crate::web::{routes_login, routes_static};
-use crate::web::mw_auth::{CtxW, mw_ctx_require, mw_ctx_resolve};
+use crate::web::mw_auth::{ mw_ctx_require, mw_ctx_resolve};
 use crate::web::mw_res_map::mw_reponse_map;
 use crate::web::mw_stamp::mw_req_stamp;
 use crate::web::routes_rpc::RpcState;
@@ -57,12 +56,12 @@ fn iniciar_programador_tareas() {
 
     // Programa la tarea recurrente para que se ejecute cada 24 horas
     scheduler.every(1.minutes()).run(move || {
-        let mut rt = tokio::runtime::Runtime::new().unwrap();
+        let rt = tokio::runtime::Runtime::new().unwrap();
         rt.block_on(async {
             println!("Ejecutando tarea diaria...");
             let mm = ModelManager::new().await.unwrap();
             let ctx = Ctx::root_ctx(); // o Ctx::new(user_id).unwrap(); si tienes un user_id específico
-            let hours = ControlBmc::update_guards(&ctx, &mm).await.unwrap();
+            ControlBmc::update_guards(&ctx, &mm).await.unwrap();
             // for hour in hours {
             //     println!("{}", hour.start_time)
             // }

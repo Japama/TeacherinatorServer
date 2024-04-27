@@ -130,7 +130,6 @@ mod tests {
     use serial_test::serial;
 
     use crate::_dev_utils;
-    use crate::_dev_utils::{seed_department, seed_user};
     use crate::ctx::Ctx;
     use crate::model::department::DepartmentBmc;
     use crate::model::schedule::{Schedule, ScheduleBmc, ScheduleForCreate, ScheduleForUpdate};
@@ -145,12 +144,12 @@ mod tests {
         let ctx = Ctx::root_ctx();
         let fx_course = 2024;
         let fx_username = "Prueba_schedule_create_ok";
-        let fx_teacher_name = "Profe_schedule_create_ok";
         let fx_department_name = "Departamento_schedule_create_ok";
+        let fx_active = true;
         
-        let fx_user_id = seed_user(&ctx, &mm, fx_username).await?;
-        let fx_department_id= seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_teacher_id = Some(_dev_utils::seed_teacher(&ctx, &mm, fx_teacher_name, fx_department_id ,fx_user_id).await?);
+        let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
+        let fx_department_id= _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
+        let fx_teacher_id = Some(_dev_utils::seed_teacher(&ctx, &mm, fx_department_id ,fx_user_id, fx_active).await?);
 
         // -- Exec
         let schedule_c = ScheduleForCreate {
@@ -183,13 +182,13 @@ mod tests {
         let fx_course = 2024;
         let fx_course_new = 2025;
         let fx_username = "Prueba_schedule_update_ok";
-        let fx_teacher_name = "Profe_schedule_update_ok";
         let fx_department_name = "Departamento_schedule_update_ok";
         let fx_group_id = -1;
+        let fx_active = true;
         
-        let fx_user_id = seed_user(&ctx, &mm, fx_username).await?;
-        let fx_department_id= seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_teacher_id = _dev_utils::seed_teacher(&ctx, &mm, fx_teacher_name, fx_department_id ,fx_user_id).await?;
+        let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
+        let fx_department_id= _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
+        let fx_teacher_id = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id ,fx_user_id, fx_active).await?;
         let fx_schedule_id = _dev_utils::seed_schedule(&ctx, &mm, fx_course, fx_teacher_id, fx_group_id).await?;
         
         // -- Exec
@@ -228,14 +227,13 @@ mod tests {
         let fx_username = "Usuario_schedule_list_by_name_ok";
         let fx_username_2 = "Usuario_schedule_list_by_name_ok_2";
         let fx_department_name = "Departamento_schedule_list_by_name_ok";
-        let fx_teacher_name = "Profe_schedule_list_by_name_ok";
-        let fx_teacher_name_2 = "Profe_schedule_list_by_name_ok_2";
-
+        let fx_active = true;
+        
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
-        let fx_teacher_id = _dev_utils::seed_teacher(&ctx, &mm, fx_teacher_name, fx_department_id, fx_user_id).await?;
+        let fx_teacher_id = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id,fx_active).await?;
         let fx_user_id_2 = _dev_utils::seed_user(&ctx, &mm, fx_username_2).await?;
-        let fx_teacher_id_2 = _dev_utils::seed_teacher(&ctx, &mm, fx_teacher_name_2, fx_department_id, fx_user_id_2).await?;
+        let fx_teacher_id_2 = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id_2,fx_active).await?;
 
         let fx_id_01 = _dev_utils::seed_schedule(&ctx, &mm, fx_courses[0], fx_teacher_id, -1).await?;
         let fx_id_02 = _dev_utils::seed_schedule(&ctx, &mm, fx_courses[1], fx_teacher_id_2, -1).await?;
