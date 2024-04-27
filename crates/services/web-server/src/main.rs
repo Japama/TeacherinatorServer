@@ -2,9 +2,15 @@
 
 // region:    --- Modules
 
+use std::thread;
+use std::time::Duration as StdDuration;
+
 use axum::{middleware, Router};
 use axum::http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, CONTENT_TYPE};
 use axum::http::Method;
+// endregion: --- Modules
+use chrono::{Duration, Timelike, Utc};
+use clokwerk::{Scheduler, TimeUnits};
 use tokio::net::TcpListener;
 use tower_cookies::CookieManagerLayer;
 use tower_http::cors::CorsLayer;
@@ -13,10 +19,13 @@ use tracing_subscriber::EnvFilter;
 
 use config::web_config;
 use lib_core::_dev_utils;
+use lib_core::ctx::Ctx;
+use lib_core::model::control::ControlBmc;
 use lib_core::model::ModelManager;
+use lib_core::model::user::UserBmc;
 
 use crate::web::{routes_login, routes_static};
-use crate::web::mw_auth::{mw_ctx_require, mw_ctx_resolve};
+use crate::web::mw_auth::{CtxW, mw_ctx_require, mw_ctx_resolve};
 use crate::web::mw_res_map::mw_reponse_map;
 use crate::web::mw_stamp::mw_req_stamp;
 use crate::web::routes_rpc::RpcState;
@@ -28,10 +37,52 @@ mod error;
 mod log;
 mod web;
 
-// endregion: --- Modules
+fn iniciar_programador_tareas() {
+    let mut scheduler = Scheduler::new();
+
+    // Supongamos que quieres que la tarea se ejecute todos los días a las 03:00
+    let hora_objetivo = 3;
+
+    // Calcula la duración hasta la próxima hora de ejecución
+    let ahora = Utc::now().hour() as i64;
+    let horas_hasta_objetivo = (hora_objetivo - ahora + 24) % 24;
+    let duracion_hasta_objetivo = Duration::hours(horas_hasta_objetivo);
+    let segundos_hasta_objetivo = duracion_hasta_objetivo.num_seconds() as u32;
+    let intervalo_hasta_objetivo = clokwerk::Interval::Seconds(segundos_hasta_objetivo);
+
+    // Programa la primera tarea para que se ejecute a la hora objetivo
+    scheduler.every(intervalo_hasta_objetivo).run(|| {
+        println!("Ejecutando tarea diaria...");
+    });
+
+    // Programa la tarea recurrente para que se ejecute cada 24 horas
+    scheduler.every(1.minutes()).run(move || {
+        let mut rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            println!("Ejecutando tarea diaria...");
+            let mm = ModelManager::new().await.unwrap();
+            let ctx = Ctx::root_ctx(); // o Ctx::new(user_id).unwrap(); si tienes un user_id específico
+            let hours = ControlBmc::update_guards(&ctx, &mm).await.unwrap();
+            // for hour in hours {
+            //     println!("{}", hour.start_time)
+            // }
+        });
+        
+    });
+
+
+    // Ejecuta el programador en un nuevo hilo
+    let _thread_handle = thread::spawn(move || {
+        loop {
+            scheduler.run_pending();
+            thread::sleep(StdDuration::from_secs(60));
+        }
+    });
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    iniciar_programador_tareas();
     tracing_subscriber::fmt()
         .without_time() // For early local development.
         .with_target(false)

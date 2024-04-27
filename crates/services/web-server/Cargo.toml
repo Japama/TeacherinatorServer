@@ -28,7 +28,8 @@ time = "0.3"
 uuid = { version = "1", features = ["v4", "fast-rng", ] }
 strum_macros = "0.25"
 derive_more = { version = "1.0.0-beta", features = ["from"] }
-
+clokwerk = "0.3.1"
+chrono = "0.4.31"
 
 
 [dev-dependencies]

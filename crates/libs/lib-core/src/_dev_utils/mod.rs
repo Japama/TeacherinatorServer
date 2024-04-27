@@ -12,8 +12,8 @@ use crate::model::group::{GroupBmc, GroupForCreate};
 use crate::model::schedule::{ScheduleBmc, ScheduleForCreate};
 use crate::model::schedule_hour::{ScheduleHourBmc, ScheduleHourForCreate};
 use crate::model::subject::{SubjectBmc, SubjectForCreate};
-use crate::model::user::{UserBmc, UserForCreate};
 use crate::model::teacher::{TeacherBmc, TeacherForCreate};
+use crate::model::user::{UserBmc, UserForCreate};
 
 mod dev_db;
 
@@ -158,9 +158,8 @@ pub async fn seed_schedule_hour(ctx: &Ctx, mm: &ModelManager, schedule_id: i64, 
             classroom_name: classroom_name.to_string(),
             week_day,
             n_hour,
-            start_time,
-            end_time,
-            course
+            course,
+            notes: Some("".to_string())
         },
     )
         .await

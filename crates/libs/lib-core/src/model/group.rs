@@ -4,10 +4,11 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use sqlx::FromRow;
 use sqlx::postgres::PgRow;
-use crate::model::modql_utils::time_to_sea_value;
+
 use crate::ctx::Ctx;
 use crate::model::base::{self, PostgresDbBmc};
 use crate::model::ModelManager;
+use crate::model::modql_utils::time_to_sea_value;
 use crate::model::Result;
 
 // region:    --- Group Types
@@ -109,15 +110,16 @@ impl GroupBmc {
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
-    use anyhow::{Result};
+    use anyhow::Result;
     use serde_json::json;
     use serial_test::serial;
+
     use crate::_dev_utils;
     use crate::ctx::Ctx;
-    use crate::model::department::{DepartmentBmc};
+    use crate::model::department::DepartmentBmc;
     use crate::model::group::{Group, GroupBmc, GroupForCreate, GroupForUpdate};
-    use crate::model::teacher::{TeacherBmc};
-    use crate::model::user::{UserBmc};
+    use crate::model::teacher::TeacherBmc;
+    use crate::model::user::UserBmc;
 
     #[serial]
     #[tokio::test]
