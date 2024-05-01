@@ -2,13 +2,13 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use sqlx::{Pool, Postgres};
 use sqlx::postgres::PgPoolOptions;
+use sqlx::{Pool, Postgres};
 use tracing::info;
 
 use crate::ctx::Ctx;
-use crate::model::ModelManager;
 use crate::model::user::{User, UserBmc};
+use crate::model::ModelManager;
 
 type Db = Pool<Postgres>;
 
@@ -44,7 +44,6 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
         let sql_recreate_db_file = sql_dir.join(SQL_RECREATE_DB_FILE_NAME);
         let root_db = new_db_pool(PG_DEV_POSTGRES_URL).await?;
         pexec(&root_db, &sql_recreate_db_file).await?;
-
     }
 
     // -- Get sql files.
@@ -70,6 +69,12 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 
     // -- Set admin pwd
     let admin_user: User = UserBmc::first_by_username(&ctx, &mm, "admin")
+        .await?
+        .unwrap();
+    UserBmc::update_pwd(&ctx, &mm, admin_user.id, DEMO_PWD).await?;
+
+    // -- Set profesor1 pwd
+    let admin_user: User = UserBmc::first_by_username(&ctx, &mm, "profesor1")
         .await?
         .unwrap();
     UserBmc::update_pwd(&ctx, &mm, admin_user.id, DEMO_PWD).await?;

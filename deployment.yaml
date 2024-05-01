@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-server
+  template:
+    metadata:
+      labels:
+        app: web-server
+    spec:
+      containers:
+        - name: web-server
+          image: japama91/web-server
+          ports:
+            - containerPort: 8080
+          env:
+            - name: RUST_LOG
+              value: "teacherinator_web_server=debug,lib_core=debug,lib_auth=debug,lib_utils=debug"
+            - name: SERVICE_DB_URL
+              value: "postgres://postgres:japama@127.0.0.1/teacherinator"
+            - name: SERVICE_MONGO_DB_URL
+              value: "mongodb://127.0.0.1:27017"
+            - name: SERVICE_PWD_KEY
+              value: "gTNvn7X9LtlrgTtjCA5Sm5RHSSZ1YP_8kN2_U4Rj21fTvCHRrZu0YQPMnZNHvhQPaf8Hm40AAye8IuzZLyqijw"
+            - name: SERVICE_TOKEN_KEY
+              value: "UxYFNlatBv_YTaQgsn5-7udXjNf5qPJYkrllzZ8KTuDZU_mpETgRHVJWcVOBrMB4YhkxS7rNFeU9ATBfHspVJA"
+            - name: SERVICE_TOKEN_DURATION_SEC
+              value: "1800"
+            - name: SERVICE_WEB_FOLDER
+              value: "web-folder/"
