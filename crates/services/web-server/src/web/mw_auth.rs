@@ -70,7 +70,7 @@ async fn _ctx_resolve(mm: State<ModelManager>, cookies: &Cookies) -> CtxExtResul
         .map_err(|_| CtxExtError::CannotSetTokenCookie)?;
 
     // -- Create CtxExtResult
-    Ctx::new(user.id)
+    Ctx::new(user.id, user.isadmin)
         .map(CtxW)
         .map_err(|ex| CtxExtError::CtxCreateFail(ex.to_string()))
 }

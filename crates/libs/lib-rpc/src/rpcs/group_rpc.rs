@@ -3,6 +3,7 @@ use lib_core::model::group::{Group, GroupBmc, GroupFilter, GroupForCreate, Group
 use lib_core::model::ModelManager;
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsList};
+use crate::Error::UserNotAdmin;
 use crate::Result;
 use crate::router::RpcRouter;
 use crate::rpc_router;
@@ -23,6 +24,7 @@ pub async fn create_group(
     mm: ModelManager,
     params: ParamsForCreate<GroupForCreate>,
 ) -> Result<Group> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForCreate { data } = params;
 
     let id = GroupBmc::create(&ctx, &mm, data).await?;
@@ -32,6 +34,7 @@ pub async fn create_group(
 }
 
 pub async fn get_group(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<Group> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
 
     let group = GroupBmc::get(&ctx, &mm, id).await?;
@@ -44,6 +47,7 @@ pub async fn list_groups(
     mm: ModelManager,
     params: ParamsList<GroupFilter>,
 ) -> Result<Vec<Group>> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let groups = GroupBmc::list(&ctx, &mm, params.filters, params.list_options).await?;
 
     Ok(groups)
@@ -54,6 +58,7 @@ pub async fn update_group(
     mm: ModelManager,
     params: ParamsForUpdate<GroupForUpdate>,
 ) -> Result<Group> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForUpdate { id, data } = params;
 
     GroupBmc::update(&ctx, &mm, id, data).await?;
@@ -64,6 +69,7 @@ pub async fn update_group(
 }
 
 pub async fn delete_group(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<Group> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
 
     let group = GroupBmc::get(&ctx, &mm, id).await?;

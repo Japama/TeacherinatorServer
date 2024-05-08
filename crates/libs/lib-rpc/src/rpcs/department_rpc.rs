@@ -3,6 +3,7 @@ use lib_core::model::department::{Department, DepartmentBmc, DepartmentFilter, D
 use lib_core::model::ModelManager;
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsList};
+use crate::Error::UserNotAdmin;
 use crate::Result;
 use crate::router::RpcRouter;
 use crate::rpc_router;
@@ -23,6 +24,7 @@ pub async fn create_department(
     mm: ModelManager,
     params: ParamsForCreate<DepartmentForCreate>,
 ) -> Result<Department> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForCreate { data } = params;
 
     let id = DepartmentBmc::create(&ctx, &mm, data.clone()).await?;
@@ -33,6 +35,7 @@ pub async fn create_department(
 }
 
 pub async fn get_department(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<Department> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
 
     let department = DepartmentBmc::get(&ctx, &mm, id).await?;
@@ -45,6 +48,7 @@ pub async fn list_departments(
     mm: ModelManager,
     params: ParamsList<DepartmentFilter>,
 ) -> Result<Vec<Department>> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let departments = DepartmentBmc::list(&ctx, &mm, params.filters, params.list_options).await?;
 
     Ok(departments)
@@ -55,6 +59,7 @@ pub async fn update_department(
     mm: ModelManager,
     params: ParamsForUpdate<DepartmentForUpdate>,
 ) -> Result<Department> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForUpdate { id, data } = params;
 
     DepartmentBmc::update(&ctx, &mm, id, data).await?;
@@ -65,6 +70,7 @@ pub async fn update_department(
 }
 
 pub async fn delete_department(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<Department> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
 
     let department = DepartmentBmc::get(&ctx, &mm, id).await?;

@@ -1,4 +1,3 @@
-use log::debug;
 use modql::field::{Field, Fields, HasFields};
 use modql::filter::{FilterNodes, ListOptions, OpValsBool, OpValsInt64, OpValsString, OpValsValue};
 use sea_query::{Expr, Iden, PostgresQueryBuilder, Query};
@@ -90,7 +89,8 @@ pub struct UserForLogin {
 pub struct UserForAuth {
     pub id: i64,
     pub username: String,
-
+    pub isadmin: bool,
+    
     // -- token info
     pub token_salt: Uuid,
 }
@@ -132,8 +132,6 @@ impl UserBmc {
     }
 
     pub async fn get_current(ctx: &Ctx, mm: &ModelManager) -> Result<User> {
-        let user: Result<User> = base::get::<Self, _>(ctx, mm, ctx.user_id()).await;
-        debug!("{}", user?.last_checkout.unwrap().to_string());
         base::get::<Self, _>(ctx, mm, ctx.user_id()).await
     }
 

@@ -3,6 +3,7 @@ use lib_core::model::ModelManager;
 use lib_core::model::user::{User, UserBmc, UserFilter, UserForCreate, UserForUpdate, UserForUpdatePwd};
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsIdedString, ParamsList};
+use crate::Error::UserNotAdmin;
 use crate::Result;
 use crate::router::RpcRouter;
 use crate::rpc_router;
@@ -28,6 +29,7 @@ pub async fn create_user(
     mm: ModelManager,
     params: ParamsForCreate<UserForCreate>,
 ) -> Result<User> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForCreate { data } = params;
 
     let id = UserBmc::create(&ctx, &mm, data.clone()).await?;
@@ -39,6 +41,7 @@ pub async fn create_user(
 }
 
 pub async fn get_user(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<User> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
 
     let user = UserBmc::get(&ctx, &mm, id).await?;
@@ -51,6 +54,7 @@ pub async fn list_users(
     mm: ModelManager,
     params: ParamsList<UserFilter>,
 ) -> Result<Vec<User>> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let users = UserBmc::list(&ctx, &mm, params.filters, params.list_options).await?;
 
     Ok(users)
@@ -61,6 +65,7 @@ pub async fn update_user(
     mm: ModelManager,
     params: ParamsForUpdate<UserForUpdate>,
 ) -> Result<User> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForUpdate { id, data } = params;
 
     UserBmc::update(&ctx, &mm, id, data.clone()).await?;
@@ -104,6 +109,7 @@ pub async fn update_user_pwd(
     mm: ModelManager,
     params: ParamsForUpdate<UserForUpdatePwd>,
 ) -> Result<User> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForUpdate { id, data } = params;
 
     let user_for_update = UserForUpdate {
@@ -122,6 +128,7 @@ pub async fn update_user_pwd(
 }
 
 pub async fn delete_user(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<User> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
 
     let user = UserBmc::get(&ctx, &mm, id).await?;

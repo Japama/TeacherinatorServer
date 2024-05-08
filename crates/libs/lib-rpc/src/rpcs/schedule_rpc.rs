@@ -4,6 +4,7 @@ use lib_core::model::schedule::{Schedule, ScheduleBmc, ScheduleFilter, ScheduleF
 use lib_core::model::teacher::TeacherBmc;
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsList};
+use crate::Error::UserNotAdmin;
 use crate::Result;
 use crate::router::RpcRouter;
 use crate::rpc_router;
@@ -25,6 +26,7 @@ pub async fn create_schedule(
     mm: ModelManager,
     params: ParamsForCreate<ScheduleForCreate>,
 ) -> Result<Schedule> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForCreate { data } = params;
     let id = ScheduleBmc::create(&ctx, &mm, data.clone()).await?;
     let schedule = ScheduleBmc::get(&ctx, &mm, id).await?;
@@ -33,6 +35,7 @@ pub async fn create_schedule(
 }
 
 pub async fn get_schedule(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<Schedule> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
 
     let schedule = ScheduleBmc::get(&ctx, &mm, id).await?;
@@ -54,6 +57,7 @@ pub async fn list_schedules(
     mm: ModelManager,
     params: ParamsList<ScheduleFilter>,
 ) -> Result<Vec<Schedule>> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let schedules = ScheduleBmc::list(&ctx, &mm, params.filters, params.list_options).await?;
 
     Ok(schedules)
@@ -64,6 +68,7 @@ pub async fn update_schedule(
     mm: ModelManager,
     params: ParamsForUpdate<ScheduleForUpdate>,
 ) -> Result<Schedule> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForUpdate { id, data } = params;
 
     ScheduleBmc::update(&ctx, &mm, id, data).await?;
@@ -74,6 +79,7 @@ pub async fn update_schedule(
 }
 
 pub async fn delete_schedule(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<Schedule> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
 
     let schedule = ScheduleBmc::get(&ctx, &mm, id).await?;
