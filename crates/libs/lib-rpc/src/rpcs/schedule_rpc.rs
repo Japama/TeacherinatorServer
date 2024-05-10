@@ -1,7 +1,6 @@
 use lib_core::ctx::Ctx;
 use lib_core::model::ModelManager;
 use lib_core::model::schedule::{Schedule, ScheduleBmc, ScheduleFilter, ScheduleForCreate, ScheduleForUpdate};
-use lib_core::model::teacher::TeacherBmc;
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsList};
 use crate::Error::UserNotAdmin;
@@ -44,10 +43,7 @@ pub async fn get_schedule(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Res
 }
 
 pub async fn get_user_schedule(ctx: Ctx, mm: ModelManager) -> Result<Schedule> {
-    let teacher_vec = TeacherBmc::get_user_teacher(&ctx, &mm).await?;
-    let teacher = teacher_vec.first().unwrap();
-    let schedules = ScheduleBmc::get_teacher_schedule(&ctx, &mm, teacher.id).await?;
-    let schedule = schedules.get(0).unwrap().clone();
+    let schedule = ScheduleBmc::get(&ctx, &mm, ctx.user_id()).await?;
     Ok(schedule)
 }
 

@@ -1,5 +1,6 @@
 // region:    --- Modules
 
+use sqlx::encode::IsNull::No;
 use time::Time;
 use tokio::sync::OnceCell;
 use tracing::info;
@@ -13,7 +14,6 @@ use crate::model::group::{GroupBmc, GroupForCreate};
 use crate::model::schedule::{ScheduleBmc, ScheduleForCreate};
 use crate::model::schedule_hour::{ScheduleHourBmc, ScheduleHourForCreate};
 use crate::model::subject::{SubjectBmc, SubjectForCreate};
-use crate::model::teacher::{TeacherBmc, TeacherForCreate};
 use crate::model::user::{UserBmc, UserForCreate};
 
 mod dev_db;
@@ -54,7 +54,10 @@ pub async fn seed_user(ctx: &Ctx, mm: &ModelManager, name: &str) -> model::Resul
         UserForCreate {
             username: name.to_string(),
             pwd: "pwd".to_string(),
-            isadmin: false
+            is_admin: false,
+            department_id: None,
+            active: true,
+            substituting_id: None
         },
     )
         .await
@@ -66,20 +69,6 @@ pub async fn seed_department(ctx: &Ctx, mm: &ModelManager, name: &str) -> model:
         mm,
         DepartmentForCreate {
             name: name.to_string()
-        },
-    )
-        .await
-}
-
-
-pub async fn seed_teacher(ctx: &Ctx, mm: &ModelManager, department_id: i64, user_id: i64, active: bool) -> model::Result<i64> {
-    TeacherBmc::create(
-        ctx,
-        mm,
-        TeacherForCreate {
-            active,
-            department_id,
-            user_id,
         },
     )
         .await
@@ -141,7 +130,7 @@ pub async fn seed_schedule(ctx: &Ctx, mm: &ModelManager, course: i32, teacher_id
         mm,
         ScheduleForCreate {
             course,
-            teacher_id: teacher,
+            user_id: teacher,
             group_id: group
         },
     )

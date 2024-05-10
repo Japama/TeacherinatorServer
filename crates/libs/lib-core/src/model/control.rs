@@ -11,7 +11,6 @@ use crate::ctx::Ctx;
 use crate::model::base::PostgresDbBmc;
 use crate::model::center_schedule_hour::CenterScheduleHourBmc;
 use crate::model::schedule_hour::{ScheduleHourBmc, ScheduleHourFilter, ScheduleHourForUpdate};
-use crate::model::teacher::{TeacherBmc};
 use crate::model::user::UserBmc;
 use crate::model::ModelManager;
 use crate::model::Result;
@@ -54,16 +53,15 @@ impl Iden for CustomIden {
 
 impl ControlBmc {
     pub async fn update_guards(ctx: &Ctx, mm: &ModelManager) -> Result<()> {
-        let teachers = TeacherBmc::list(&ctx, &mm, None, None).await?;
         let users = UserBmc::list(&ctx, &mm, None, None).await?;
         let schedules = ScheduleBmc::list(&ctx, &mm, None, None).await?;
         let center_schedule_hours = CenterScheduleHourBmc::list(&ctx, &mm, None, None).await?;
         let not_in_center_users = users.iter().filter( |user| !user.in_center);
         let mut not_in_center_teachers: Vec<i64> = vec![];
         for not_in_center_user in not_in_center_users {
-            for teacher in teachers.clone() {
-                if not_in_center_user.id == teacher.user_id{
-                    not_in_center_teachers.insert(0, teacher.id);
+            for user in users.clone() {
+                if not_in_center_user.id == user.id{
+                    not_in_center_teachers.insert(0, user.id);
                 }
             }
         }
@@ -81,7 +79,7 @@ impl ControlBmc {
         let current_week_day: i32 = OffsetDateTime::now_utc().weekday() as i32;
         let course: i32 =  OffsetDateTime::now_utc().year();
 
-         for schedule_hour in center_schedule_hours {
+        for schedule_hour in center_schedule_hours {
             if now >= schedule_hour.start_time && now <= schedule_hour.end_time && current_week_day == schedule_hour.week_day {
                 current_n_hour = schedule_hour.n_hour;
                 break;
@@ -96,7 +94,7 @@ impl ControlBmc {
             notes: None,
             cid: None, ctime: None, mid: None, mtime: None
         }]);
-        
+
         let list_options = Some(ListOptions { limit: None, offset: None, order_bys: None });
         let current_schedule_hours = ScheduleHourBmc::list(&ctx, &mm, filters, list_options).await?;
         let temp_current_schedule_hours = current_schedule_hours.clone();
@@ -104,7 +102,7 @@ impl ControlBmc {
 
         for not_in_center_teacher in not_in_center_teachers {
             let schedule = schedules.iter().find(|schedule| {
-                if let Some(teacher_id) = schedule.teacher_id {
+                if let Some(teacher_id) = schedule.user_id {
                     teacher_id == not_in_center_teacher
                 } else {
                     false

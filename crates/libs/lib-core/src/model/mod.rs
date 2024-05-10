@@ -29,7 +29,6 @@ pub mod modql_utils;
 mod store;
 pub mod user;
 pub mod department;
-pub mod teacher;
 pub mod subject;
 pub mod group;
 pub mod classroom;

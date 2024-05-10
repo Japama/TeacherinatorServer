@@ -1,3 +1,4 @@
+use log::debug;
 use lib_core::ctx::Ctx;
 use lib_core::model::ModelManager;
 use lib_core::model::user::{User, UserBmc, UserFilter, UserForCreate, UserForUpdate, UserForUpdatePwd};
@@ -21,6 +22,8 @@ pub fn rpc_router() -> RpcRouter {
         check_duplicate_username,
         user_checkin,
         user_checkout,
+        count_users_by_department,
+        users_by_department,
     )
 }
 
@@ -113,9 +116,20 @@ pub async fn update_user_pwd(
     let ParamsForUpdate { id, data } = params;
 
     let user_for_update = UserForUpdate {
-        username: data.username.clone(),
-        isadmin: data.isadmin,
+        username: data.username,
+        is_admin: data.is_admin,
+        active: data.active,
+        department_id: data.department_id,
+        last_checkin: data.last_checkin,
+        last_checkout: data.last_checkout,
+        in_center: data.in_center,
+        substituting_id: data.substituting_id,
+        substitutions: data.substitutions
     };
+
+    if data.department_id.is_some(){
+        debug!("Departamento: {}", data.department_id.unwrap())
+    }
 
     UserBmc::update(&ctx, &mm, id, user_for_update).await?;
     let pwd = data.pwd;
@@ -144,4 +158,25 @@ pub async fn check_duplicate_username(
 ) -> Result<bool> {
     let user: Option<User> = UserBmc::check_username(&ctx, &mm, &params.data).await?;
     Ok(user.is_some())
+}
+
+
+pub async fn count_users_by_department(
+    ctx: Ctx,
+    mm: ModelManager,
+    params: ParamsIded,
+) -> Result<i64> {
+    let ParamsIded { id } = params;
+    let teacher_number = UserBmc::count_users_by_department(&ctx, &mm, id).await?;
+    Ok(teacher_number)
+}
+
+pub async fn users_by_department(
+    ctx: Ctx,
+    mm: ModelManager,
+    params: ParamsIded,
+) -> Result<Vec<User>> {
+    let ParamsIded { id } = params;
+    let teacher_number = UserBmc::users_by_department(&ctx, &mm, id).await?;
+    Ok(teacher_number)
 }

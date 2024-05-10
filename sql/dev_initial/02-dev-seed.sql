@@ -1,33 +1,3 @@
--- Users
--- Admin user (at id = 0)
--- root user (at id = 0)
-INSERT INTO "users"
-    (id, username, cid, ctime, mid, mtime)
-VALUES (0, 'root', 0, now(), 0, now());
-
-INSERT INTO "users" (username, isadmin, cid, ctime, mid, mtime)
-VALUES ('admin', true, 0, now(), 0, now());
-INSERT INTO "users" (username, cid, ctime, mid, mtime)
-VALUES ('profesor1', 0, now(), 0, now());
-INSERT INTO "users" (username, cid, ctime, mid, mtime)
-VALUES ('profesor2', 0, now(), 0, now());
-INSERT INTO "users" (username, cid, ctime, mid, mtime)
-VALUES ('profesor3', 0, now(), 0, now());
-INSERT INTO "users" (username, cid, ctime, mid, mtime)
-VALUES ('profesor4', 0, now(), 0, now());
-INSERT INTO "users" (username, cid, ctime, mid, mtime)
-VALUES ('profesor5', 0, now(), 0, now());
-INSERT INTO "users" (username, cid, ctime, mid, mtime)
-VALUES ('profesor6', 0, now(), 0, now());
-INSERT INTO "users" (username, cid, ctime, mid, mtime)
-VALUES ('profesor7', 0, now(), 0, now());
-INSERT INTO "users" (username, cid, ctime, mid, mtime)
-VALUES ('profesor8', 0, now(), 0, now());
-INSERT INTO "users" (username, cid, ctime, mid, mtime)
-VALUES ('profesor9', 0, now(), 0, now());
-INSERT INTO "users" (username, isadmin, cid, ctime, mid, mtime)
-VALUES ('secretaria1', true, 0, now(), 0, now());
-
 -- Departments
 INSERT INTO "departments" (id, name, cid, ctime, mid, mtime)
 VALUES (1, 'Ninguno', 0, now(), 0, now());
@@ -50,25 +20,25 @@ VALUES ('Informática', 0, now(), 0, now());
 INSERT INTO "departments" (name, cid, ctime, mid, mtime)
 VALUES ('Francés', 0, now(), 0, now());
 
--- Teachers
-INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES (1000, true,1000, 0, now(), 0, now());
-INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES (1001, true,1001, 0, now(), 0, now());
-INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES (1002, true,1002, 0, now(), 0, now());
-INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES (1003, true,1003, 0, now(), 0, now());
-INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES (1004, true,1004, 0, now(), 0, now());
-INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES (1005, true,1005, 0, now(), 0, now());
-INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES (1006, true,1006, 0, now(), 0, now());
-INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES (1007, true,1007, 0, now(), 0, now());
-INSERT INTO "teachers" (user_id, active, department_id, cid, ctime, mid, mtime)
-VALUES (1008, true,1008, 0, now(), 0, now());
+-- Users
+-- Admin user (at id = 0)
+-- root user (at id = 0)
+INSERT INTO "users"
+(id, username, cid, ctime, mid, mtime)
+VALUES (0, 'root', 0, now(), 0, now());
+
+INSERT INTO "users" (username, is_admin, active, department_id, cid, ctime, mid, mtime)
+VALUES ('admin', true, true, 1, 0, now(), 0, now());
+INSERT INTO "users" (username, active, department_id, cid, ctime, mid, mtime)
+VALUES ('profesor1', true, 1001, 0, now(), 0, now());
+INSERT INTO "users" (username, active, department_id, cid, ctime, mid, mtime)
+VALUES ('profesor2', true, 1002, 0, now(), 0, now());
+INSERT INTO "users" (username, active, department_id, cid, ctime, mid, mtime)
+VALUES ('profesor3', true, 1003, 0, now(), 0, now());
+INSERT INTO "users" (username, active, department_id, cid, ctime, mid, mtime)
+VALUES ('profesor4', true, 1004, 0, now(), 0, now());
+INSERT INTO "users" (username, is_admin, active, department_id, cid, ctime, mid, mtime)
+VALUES ('secretaria1', true, true, null, 0, now(), 0, now());
 
 -- Subjects
 INSERT INTO "subjects" (name, department_id, is_guard, is_complementary, cid, ctime, mid, mtime)
@@ -108,15 +78,15 @@ VALUES ('Edificio1', 0, 1, 'Sala 1', 0, 'Habitación normal', 0, now(), 0, now()
 
 
 -- Insertar datos en la tabla schedules
-INSERT INTO schedules (teacher_id, group_id, course, cid, ctime, mid, mtime)
-VALUES (1000, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
-INSERT INTO schedules (teacher_id, group_id, course, cid, ctime, mid, mtime)
+INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
 VALUES (1001, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
-INSERT INTO schedules (teacher_id, group_id, course, cid, ctime, mid, mtime)
+INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
 VALUES (1002, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
-INSERT INTO schedules (teacher_id, group_id, course, cid, ctime, mid, mtime)
+INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
+VALUES (1003, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
+INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
 VALUES (null, 1000, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
-INSERT INTO schedules (teacher_id, group_id, course, cid, ctime, mid, mtime)
+INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
 VALUES (null, 1001, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
 
 -- Insertar datos en la tabla schedule_hours

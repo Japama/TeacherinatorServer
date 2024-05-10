@@ -118,7 +118,6 @@ mod tests {
     use crate::ctx::Ctx;
     use crate::model::department::DepartmentBmc;
     use crate::model::group::{Group, GroupBmc, GroupForCreate, GroupForUpdate};
-    use crate::model::teacher::TeacherBmc;
     use crate::model::user::UserBmc;
 
     #[serial]
@@ -138,13 +137,12 @@ mod tests {
         
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_tutor_id = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id, fx_active).await?;
-        
+
         // -- Exec
         let group_c = GroupForCreate {
             course: fx_course,
             stage: fx_stage,
-            tutor_id: fx_tutor_id,
+            tutor_id: fx_user_id,
             letter: fx_letter.to_string(),
             year: fx_year
         };
@@ -156,12 +154,11 @@ mod tests {
         assert_eq!(group.letter, fx_letter);
         assert_eq!(group.year, fx_year);
         assert_eq!(group.stage, fx_stage);
-        assert_eq!(group.tutor_id, fx_tutor_id);
+        assert_eq!(group.tutor_id, fx_user_id);
         assert_eq!(group.course, fx_course);
 
         // -- Clean
         GroupBmc::delete(&ctx, &mm, id).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_tutor_id).await?;
         DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
         
@@ -191,8 +188,6 @@ mod tests {
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_usernames[0]).await?;
         let fx_user_id_new = _dev_utils::seed_user(&ctx, &mm, fx_usernames[1]).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_tutor_id = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id, fx_active).await?;
-        let fx_tutor_id_new = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id_new, fx_active).await?;
         let fx_group_id = _dev_utils::seed_group(&ctx, &mm, fx_letter, fx_course, fx_stage, fx_year, fx_tutor_id).await?;
 
         // -- Exec
@@ -203,7 +198,7 @@ mod tests {
             GroupForUpdate {
                 course: fx_course_new,
                 stage: fx_stage_new,
-                tutor_id: fx_tutor_id_new,
+                tutor_id: fx_user_id_new,
                 letter: fx_letter_new.to_string(),
                 year: fx_year_new
             },
@@ -215,13 +210,11 @@ mod tests {
         assert_eq!(group.letter, fx_letter_new);
         assert_eq!(group.year, fx_year_new);
         assert_eq!(group.course, fx_course_new);
-        assert_eq!(group.tutor_id, fx_tutor_id_new);
+        assert_eq!(group.tutor_id, fx_user_id_new);
         assert_eq!(group.stage, fx_stage_new);
 
         // -- Clean
         GroupBmc::delete(&ctx, &mm, fx_group_id).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_tutor_id).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_tutor_id_new).await?;
         DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id_new).await?;
@@ -249,11 +242,10 @@ mod tests {
 
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_tutor_id = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id, fx_active).await?;
 
 
-        let fx_id_01 = _dev_utils::seed_group(&ctx, &mm, fx_letters[0], fx_course, fx_stage, fx_year, fx_tutor_id).await?;
-        let fx_id_02 = _dev_utils::seed_group(&ctx, &mm, fx_letters[1], fx_course, fx_stage, fx_year, fx_tutor_id).await?;
+        let fx_id_01 = _dev_utils::seed_group(&ctx, &mm, fx_letters[0], fx_course, fx_stage, fx_year, fx_user_id).await?;
+        let fx_id_02 = _dev_utils::seed_group(&ctx, &mm, fx_letters[1], fx_course, fx_stage, fx_year, fx_user_id).await?;
 
         // -- Exec
         let filter_json = json!({
@@ -274,7 +266,6 @@ mod tests {
         // -- Cleanup
         GroupBmc::delete(&ctx, &mm, fx_id_01).await?;
         GroupBmc::delete(&ctx, &mm, fx_id_02).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_tutor_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
         DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
         

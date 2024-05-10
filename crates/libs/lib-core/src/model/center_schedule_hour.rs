@@ -132,13 +132,12 @@ mod tests {
     use time::Time;
 
     use crate::_dev_utils;
-    use crate::_dev_utils::{seed_department, seed_schedule, seed_subject, seed_teacher, seed_user};
+    use crate::_dev_utils::{seed_department, seed_schedule, seed_subject, seed_user};
     use crate::ctx::Ctx;
     use crate::model::center_schedule_hour::{CenterScheduleHour, CenterScheduleHourBmc, CenterScheduleHourForCreate, CenterScheduleHourForUpdate};
     use crate::model::department::DepartmentBmc;
     use crate::model::schedule::ScheduleBmc;
     use crate::model::subject::SubjectBmc;
-    use crate::model::teacher::TeacherBmc;
     use crate::model::user::UserBmc;
 
     #[serial]
@@ -165,8 +164,7 @@ mod tests {
         let fx_user_id = seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
         let fx_subject_id = seed_subject(&ctx, &mm, fx_subject_name, fx_department_id, false, false).await?;
-        let fx_teacher_id = seed_teacher(&ctx, &mm, fx_department_id ,fx_user_id, fx_active).await?;
-        let fx_schedule_id= seed_schedule(&ctx, &mm, fx_course, fx_teacher_id, -1).await?;
+        let fx_schedule_id= seed_schedule(&ctx, &mm, fx_course, fx_user_id, -1).await?;
 
         // -- Exec
         let schedule_hour_c = CenterScheduleHourForCreate {
@@ -186,7 +184,6 @@ mod tests {
         // -- Clean
         CenterScheduleHourBmc::delete(&ctx, &mm, id).await?;
         ScheduleBmc::delete(&ctx, &mm, fx_schedule_id).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_teacher_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
         SubjectBmc::delete(&ctx, &mm, fx_subject_id).await?;
         DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;

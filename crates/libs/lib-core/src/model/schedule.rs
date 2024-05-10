@@ -16,14 +16,14 @@ use crate::model::Result;
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
 pub struct Schedule {
     pub id: i64,
-    pub teacher_id: Option<i64>,
+    pub user_id: Option<i64>,
     pub group_id: Option<i64>,
     pub course: i32,
 }
 
 #[derive(Fields, Deserialize, Clone)]
 pub struct ScheduleForCreate {
-    pub teacher_id: Option<i64>,
+    pub user_id: Option<i64>,
     pub group_id: Option<i64>,
     pub course: i32,
 }
@@ -32,7 +32,7 @@ pub struct ScheduleForCreate {
 pub struct ScheduleFilter {
     id: Option<OpValsInt64>,
 
-    teacher_id: Option<OpValsInt64>,
+    user_id: Option<OpValsInt64>,
     group_id: Option<OpValsInt64>,
     course: Option<OpValsInt64>,
 
@@ -46,7 +46,7 @@ pub struct ScheduleFilter {
 
 #[derive(Fields, Default, Deserialize)]
 pub struct ScheduleForUpdate {
-    pub teacher_id: Option<i64>,
+    pub user_id: Option<i64>,
     pub group_id: Option<i64>,
     pub course: i32,
 }
@@ -75,11 +75,11 @@ impl ScheduleBmc {
         base::get::<Self, _>(ctx, mm, id).await
     }
 
-    pub async fn get_teacher_schedule(ctx: &Ctx, mm: &ModelManager, teacher_id: i64) -> Result<Vec<Schedule>>
+    pub async fn get_teacher_schedule(ctx: &Ctx, mm: &ModelManager, user_id: i64) -> Result<Vec<Schedule>>
     {
         let filters = Some(ScheduleFilter {
             id: None,
-            teacher_id: Some(OpValsInt64::from(teacher_id)),
+            user_id: Some(OpValsInt64::from(user_id)),
             group_id: None,
             course: None,
             cid: None,
@@ -133,7 +133,6 @@ mod tests {
     use crate::ctx::Ctx;
     use crate::model::department::DepartmentBmc;
     use crate::model::schedule::{Schedule, ScheduleBmc, ScheduleForCreate, ScheduleForUpdate};
-    use crate::model::teacher::TeacherBmc;
     use crate::model::user::UserBmc;
 
     #[serial]
@@ -146,16 +145,15 @@ mod tests {
         let fx_username = "Prueba_schedule_create_ok";
         let fx_department_name = "Departamento_schedule_create_ok";
         let fx_active = true;
-        
+
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id= _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_teacher_id = Some(_dev_utils::seed_teacher(&ctx, &mm, fx_department_id ,fx_user_id, fx_active).await?);
 
         // -- Exec
         let schedule_c = ScheduleForCreate {
             course: fx_course,
             group_id: None,
-            teacher_id: fx_teacher_id,
+            user_id: Some(fx_user_id),
         };
 
         let id = ScheduleBmc::create(&ctx, &mm, schedule_c).await?;
@@ -166,13 +164,12 @@ mod tests {
 
         // -- Clean
         ScheduleBmc::delete(&ctx, &mm, id).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_teacher_id.unwrap()).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
         DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
 
         Ok(())
     }
-    
+
     #[serial]
     #[tokio::test]
     async fn test_update_ok() -> Result<()> {
@@ -185,12 +182,11 @@ mod tests {
         let fx_department_name = "Departamento_schedule_update_ok";
         let fx_group_id = -1;
         let fx_active = true;
-        
+
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id= _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_teacher_id = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id ,fx_user_id, fx_active).await?;
         let fx_schedule_id = _dev_utils::seed_schedule(&ctx, &mm, fx_course, fx_teacher_id, fx_group_id).await?;
-        
+
         // -- Exec
         ScheduleBmc::update(
             &ctx,
@@ -199,7 +195,7 @@ mod tests {
             ScheduleForUpdate {
                 course: fx_course_new,
                 group_id: None,
-                teacher_id: Some(fx_teacher_id)
+                user_id: Some(fx_user_id)
             },
         )
             .await?;
@@ -210,7 +206,6 @@ mod tests {
 
         // -- Clean
         ScheduleBmc::delete(&ctx, &mm, fx_schedule_id).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_teacher_id).await?;
         DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
 
@@ -228,15 +223,13 @@ mod tests {
         let fx_username_2 = "Usuario_schedule_list_by_name_ok_2";
         let fx_department_name = "Departamento_schedule_list_by_name_ok";
         let fx_active = true;
-        
+
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
-        let fx_teacher_id = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id,fx_active).await?;
         let fx_user_id_2 = _dev_utils::seed_user(&ctx, &mm, fx_username_2).await?;
-        let fx_teacher_id_2 = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id_2,fx_active).await?;
 
-        let fx_id_01 = _dev_utils::seed_schedule(&ctx, &mm, fx_courses[0], fx_teacher_id, -1).await?;
-        let fx_id_02 = _dev_utils::seed_schedule(&ctx, &mm, fx_courses[1], fx_teacher_id_2, -1).await?;
+        let fx_id_01 = _dev_utils::seed_schedule(&ctx, &mm, fx_courses[0], fx_user_id, -1).await?;
+        let fx_id_02 = _dev_utils::seed_schedule(&ctx, &mm, fx_courses[1], fx_user_id_2, -1).await?;
 
         // -- Exec
         let filter_json = json!({
@@ -256,8 +249,6 @@ mod tests {
         // -- Cleanup
         ScheduleBmc::delete(&ctx, &mm, fx_id_01).await?;
         ScheduleBmc::delete(&ctx, &mm, fx_id_02).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_teacher_id).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_teacher_id_2).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id_2).await?;
         DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;        

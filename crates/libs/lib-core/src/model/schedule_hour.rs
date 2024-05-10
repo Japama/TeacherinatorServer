@@ -140,13 +140,12 @@ mod tests {
     use serial_test::serial;
 
     use crate::_dev_utils;
-    use crate::_dev_utils::{seed_department, seed_schedule, seed_subject, seed_teacher, seed_user};
+    use crate::_dev_utils::{seed_department, seed_schedule, seed_subject, seed_user};
     use crate::ctx::Ctx;
     use crate::model::department::DepartmentBmc;
     use crate::model::schedule::ScheduleBmc;
     use crate::model::schedule_hour::{ScheduleHour, ScheduleHourBmc, ScheduleHourForCreate, ScheduleHourForUpdate};
     use crate::model::subject::SubjectBmc;
-    use crate::model::teacher::TeacherBmc;
     use crate::model::user::UserBmc;
 
     #[serial]
@@ -168,8 +167,7 @@ mod tests {
         let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
         let fx_classroom_name = "Info 2".to_string();
         let fx_notes = "".to_string();
-        let fx_teacher_id = seed_teacher(&ctx, &mm, fx_department_id ,fx_user_id,fx_active).await?;
-        let fx_schedule_id= seed_schedule(&ctx, &mm, fx_course, fx_teacher_id, -1).await?;
+        let fx_schedule_id= seed_schedule(&ctx, &mm, fx_course, fx_user_id, -1).await?;
 
         // -- Exec
         let schedule_hour_c = ScheduleHourForCreate {
@@ -191,7 +189,6 @@ mod tests {
         // -- Clean
         ScheduleHourBmc::delete(&ctx, &mm, id).await?;
         ScheduleBmc::delete(&ctx, &mm, fx_schedule_id).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_teacher_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
         DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
 
@@ -219,8 +216,7 @@ mod tests {
         let fx_user_id = seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
         let fx_subject_id = seed_subject(&ctx, &mm, fx_subject_name, fx_department_id, false, false).await?;
-        let fx_teacher_id = seed_teacher(&ctx, &mm, fx_department_id ,fx_user_id,fx_active).await?;
-        let fx_schedule_id= seed_schedule(&ctx, &mm, fx_course, fx_teacher_id, -1).await?;
+        let fx_schedule_id= seed_schedule(&ctx, &mm, fx_course, fx_user_id, -1).await?;
         let fx_schedule_hour_id = _dev_utils::seed_schedule_hour(&ctx, &mm, fx_schedule_id, fx_subject_name, fx_classroom_name, fx_week_day, fx_n_hour, fx_course).await?;
         
         // -- Exec
@@ -247,7 +243,6 @@ mod tests {
         // -- Clean
         ScheduleHourBmc::delete(&ctx, &mm, fx_schedule_hour_id).await?;
         ScheduleBmc::delete(&ctx, &mm, fx_schedule_id).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_teacher_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
         SubjectBmc::delete(&ctx, &mm, fx_subject_id).await?;
         DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
@@ -275,8 +270,7 @@ mod tests {
         let fx_user_id = seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
         let fx_subject_id = seed_subject(&ctx, &mm, fx_subject_name, fx_department_id, false, false).await?;
-        let fx_teacher_id = seed_teacher(&ctx, &mm, fx_department_id ,fx_user_id, fx_active).await?;
-        let fx_schedule_id= seed_schedule(&ctx, &mm, fx_course, fx_teacher_id, -1).await?;
+        let fx_schedule_id= seed_schedule(&ctx, &mm, fx_course, fx_user_id, -1).await?;
         let fx_schedule_hour_id_01 = _dev_utils::seed_schedule_hour(&ctx, &mm, fx_schedule_id, fx_subject_name, fx_classroom_name, fx_week_day, fx_n_hour, fx_course).await?;
         let fx_schedule_hour_id_02 = _dev_utils::seed_schedule_hour(&ctx, &mm, fx_schedule_id, fx_subject_name, fx_classroom_name, fx_week_day_2, fx_n_hour, fx_course).await?;
 
@@ -299,7 +293,6 @@ mod tests {
         ScheduleHourBmc::delete(&ctx, &mm, fx_schedule_hour_id_01).await?;
         ScheduleHourBmc::delete(&ctx, &mm, fx_schedule_hour_id_02).await?;
         ScheduleBmc::delete(&ctx, &mm, fx_schedule_id).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_teacher_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
         SubjectBmc::delete(&ctx, &mm, fx_subject_id).await?;
         DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
