@@ -67,10 +67,10 @@ INSERT INTO "subjects" (name, department_id, is_guard, is_complementary, cid, ct
 VALUES ('Atención a padres', 1000, false, true, 0, now(), 0, now());
 
 -- Groups
-INSERT INTO "groups" (course, stage, year, letter, tutor_id, cid, ctime, mid, mtime)
-VALUES (1, 1, 2023, 'A', 1000, 0, now(), 0, now());
-INSERT INTO "groups" (course, stage, year, letter, tutor_id, cid, ctime, mid, mtime)
-VALUES (1, 1, 2023, 'B', 1001, 0, now(), 0, now());
+INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
+VALUES (1, 1, 2024, 'A', '1000', 0, now(), 0, now());
+INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
+VALUES (1, 1, 2024, 'B', '1001', 0, now(), 0, now());
 
 -- Classroom
 INSERT INTO "classrooms" (building, floor, number, name, type_c, description, cid, ctime, mid, mtime)
@@ -100,7 +100,7 @@ VALUES (1000, 'Mantenimiento','Departamento', 0, 2, 2024, 0, CURRENT_TIMESTAMP, 
 INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
 VALUES (1000, 'Recreo','Patio', 0, 3, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
-VALUES (1000, 'Atención a familias','Sala de profesores', 0, 4, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+VALUES (1000, 'A. Familias','SP', 0, 4, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
 VALUES (1000, 'Cultura digital','Info 3', 0, 5, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
@@ -115,7 +115,7 @@ VALUES (1000, 'Libre','', 0, 6, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP
 -- INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
 -- VALUES (1000, 'Recreo','Patio', 0, 10, 2024, '17:45:00', '11:10:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 -- INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
--- VALUES (1000, 'Atención a familias','Sala de profesores', 0, 11, 2024, '18:10:00', '12:05:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- VALUES (1000, 'A. Familias','Sala de profesores', 0, 11, 2024, '18:10:00', '12:05:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 -- INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
 -- VALUES (1000, 'Cultura digital','Info 3', 0, 12, 2024, '19:05:00', '13:00:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 -- INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
@@ -163,7 +163,7 @@ VALUES (1000, 'Mantenimiento','Departamento', 3, 2, 2024, 0, CURRENT_TIMESTAMP, 
 INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
 VALUES (1000, 'Recreo','Patio', 3, 3, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
-VALUES (1000, 'Atención a familias','Sala de profesores', 3, 4, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+VALUES (1000, 'A. Familias','SP', 3, 4, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
 VALUES (1000, 'Cultura digital','Info 3', 3, 5, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
@@ -264,6 +264,21 @@ INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day,
 VALUES (1001, 'Guardia','Aula 01', 4, 5, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, cid, ctime, mid, mtime)
 VALUES (1001, 'Guardia','Aula 01', 4, 6, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+
+INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course, notes, cid, ctime, mid, mtime)
+VALUES (1002, 'Matemáticas','Info 2', 0, 0, 2024, 'Turuleta', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
+VALUES (1002, 'Matemáticas','Info 2', 0, 1, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
+VALUES (1002, 'Mantenimiento','Departamento', 0, 2, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
+VALUES (1002, 'Recreo','Patio', 0, 3, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
+VALUES (1002, 'A. Familias','Sala de profesores', 0, 4, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
+VALUES (1002, 'Cultura digital','Info 3', 0, 5, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
+VALUES (1002, 'Libre','', 0, 6, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 
 
 -- Center schedule hours

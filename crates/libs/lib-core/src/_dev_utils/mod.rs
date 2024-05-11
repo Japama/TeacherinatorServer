@@ -1,6 +1,5 @@
 // region:    --- Modules
 
-use sqlx::encode::IsNull::No;
 use time::Time;
 use tokio::sync::OnceCell;
 use tracing::info;
@@ -89,7 +88,7 @@ pub async fn seed_subject(ctx: &Ctx, mm: &ModelManager, name: &str, department_i
 }
 
 
-pub async fn seed_group(ctx: &Ctx, mm: &ModelManager, letter: &str, course: i32, stage: i32, year: i32, tutor_id: i64) -> model::Result<i64> {
+pub async fn seed_group(ctx: &Ctx, mm: &ModelManager, letter: &str, course: i32, stage: i32, year: i32, tutor_name: String) -> model::Result<i64> {
     GroupBmc::create(
         ctx,
         mm,
@@ -97,7 +96,7 @@ pub async fn seed_group(ctx: &Ctx, mm: &ModelManager, letter: &str, course: i32,
             course,
             stage,
             year,
-            tutor_id,
+            tutor_name,
             letter: letter.to_string(),
         },
     )

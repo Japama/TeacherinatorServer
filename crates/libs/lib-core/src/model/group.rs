@@ -20,7 +20,7 @@ pub struct Group {
     pub stage: i32,     // ESO, Bachiller, Ciclos
     pub year: i32,      // 2023/2024, 2024/2025
     pub letter: String,
-    pub tutor_id: i64,
+    pub tutor_name: String,
 }
 
 #[derive(Fields, Deserialize, Clone)]
@@ -29,7 +29,7 @@ pub struct GroupForCreate {
     pub stage: i32,     // ESO, Bachiller, Ciclos
     pub year: i32,      // 2023/2024, 2024/2025
     pub letter: String,
-    pub tutor_id: i64,
+    pub tutor_name: String,
 }
 
 #[derive(FilterNodes, Deserialize, Default, Debug)]
@@ -39,7 +39,7 @@ pub struct GroupFilter {
     stage: Option<OpValsInt64>,
     year: Option<OpValsInt64>,
     letter: Option<OpValsString>,
-    tutor_id: Option<OpValsInt64>,
+    tutor_name: Option<OpValsString>,
 
     cid: Option<OpValsInt64>,
     #[modql(to_sea_value_fn = "time_to_sea_value")]
@@ -55,7 +55,7 @@ pub struct GroupForUpdate {
     pub stage: i32,     // ESO, Bachiller, Ciclos
     pub year: i32,      // 2023/2024, 2024/2025
     pub letter: String,
-    pub tutor_id: i64,
+    pub tutor_name: String,
 }
 
 /// Marker trait
@@ -142,7 +142,7 @@ mod tests {
         let group_c = GroupForCreate {
             course: fx_course,
             stage: fx_stage,
-            tutor_id: fx_user_id,
+            tutor_name: fx_user_id,
             letter: fx_letter.to_string(),
             year: fx_year
         };
@@ -154,7 +154,7 @@ mod tests {
         assert_eq!(group.letter, fx_letter);
         assert_eq!(group.year, fx_year);
         assert_eq!(group.stage, fx_stage);
-        assert_eq!(group.tutor_id, fx_user_id);
+        assert_eq!(group.tutor_name, fx_user_id);
         assert_eq!(group.course, fx_course);
 
         // -- Clean
@@ -188,7 +188,7 @@ mod tests {
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_usernames[0]).await?;
         let fx_user_id_new = _dev_utils::seed_user(&ctx, &mm, fx_usernames[1]).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_group_id = _dev_utils::seed_group(&ctx, &mm, fx_letter, fx_course, fx_stage, fx_year, fx_tutor_id).await?;
+        let fx_group_id = _dev_utils::seed_group(&ctx, &mm, fx_letter, fx_course, fx_stage, fx_year, fx_tutor_name).await?;
 
         // -- Exec
         GroupBmc::update(
@@ -198,7 +198,7 @@ mod tests {
             GroupForUpdate {
                 course: fx_course_new,
                 stage: fx_stage_new,
-                tutor_id: fx_user_id_new,
+                tutor_name: fx_user_id_new,
                 letter: fx_letter_new.to_string(),
                 year: fx_year_new
             },
@@ -210,7 +210,7 @@ mod tests {
         assert_eq!(group.letter, fx_letter_new);
         assert_eq!(group.year, fx_year_new);
         assert_eq!(group.course, fx_course_new);
-        assert_eq!(group.tutor_id, fx_user_id_new);
+        assert_eq!(group.tutor_name, fx_user_id_new);
         assert_eq!(group.stage, fx_stage_new);
 
         // -- Clean
