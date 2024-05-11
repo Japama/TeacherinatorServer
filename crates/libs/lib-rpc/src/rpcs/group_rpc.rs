@@ -1,6 +1,7 @@
 use lib_core::ctx::Ctx;
 use lib_core::model::group::{Group, GroupBmc, GroupFilter, GroupForCreate, GroupForUpdate};
 use lib_core::model::ModelManager;
+use lib_core::model::schedule::{ScheduleBmc, ScheduleForCreate};
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsList};
 use crate::Error::UserNotAdmin;
@@ -28,7 +29,14 @@ pub async fn create_group(
     let ParamsForCreate { data } = params;
 
     let id = GroupBmc::create(&ctx, &mm, data).await?;
-    let group = GroupBmc::get(&ctx, &mm, id).await?;
+    let group: Group = GroupBmc::get(&ctx, &mm, id).await?;
+
+    let schedule = ScheduleForCreate {
+        user_id: None,
+        group_id: Some(id),
+        course: group.year,
+    };
+    ScheduleBmc::create(&ctx, &mm, schedule).await?;
 
     Ok(group)
 }

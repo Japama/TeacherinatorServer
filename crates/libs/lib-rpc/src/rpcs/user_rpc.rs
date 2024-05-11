@@ -1,6 +1,8 @@
+use chrono::{Datelike, Utc};
 use log::debug;
 use lib_core::ctx::Ctx;
 use lib_core::model::ModelManager;
+use lib_core::model::schedule::{ScheduleBmc, ScheduleForCreate};
 use lib_core::model::user::{User, UserBmc, UserFilter, UserForCreate, UserForUpdate, UserForUpdatePwd};
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsIdedString, ParamsList};
@@ -39,7 +41,16 @@ pub async fn create_user(
     let pwd = data.pwd;
     UserBmc::update_pwd(&ctx, &mm, id, &pwd).await?;
     let user = UserBmc::get(&ctx, &mm, id).await?;
+    
+    let current_year = Utc::now().year();
 
+    let schedule = ScheduleForCreate {
+        user_id: Some(id),
+        group_id: None,
+        course: current_year,
+    };
+    ScheduleBmc::create(&ctx, &mm, schedule).await?;
+    
     Ok(user)
 }
 
