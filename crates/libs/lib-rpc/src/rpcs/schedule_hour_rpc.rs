@@ -62,7 +62,7 @@ pub async fn list_schedule_hours(
     mm: ModelManager,
     params: ParamsList<ScheduleHourFilter>,
 ) -> Result<Vec<ScheduleHour>> {
-    if !&ctx.admin() { return Err(UserNotAdmin); }
+    // if !&ctx.admin() { return Err(UserNotAdmin); }
     let schedule_hours = ScheduleHourBmc::list(&ctx, &mm, params.filters, params.list_options).await?;
 
     Ok(schedule_hours)

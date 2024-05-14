@@ -159,11 +159,9 @@ pub async fn seed_center_schedule_hour(ctx: &Ctx, mm: &ModelManager, week_day: i
         ctx,
         mm,
         CenterScheduleHourForCreate {
-            week_day,
             n_hour,
             start_time,
             end_time,
-            course
         },
     )
         .await

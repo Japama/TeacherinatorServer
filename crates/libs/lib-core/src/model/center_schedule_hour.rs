@@ -19,33 +19,32 @@ use crate::model::Result;
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
 pub struct CenterScheduleHour {
     pub id: i64,
-    pub week_day: i32,
     pub n_hour: i32,
     pub start_time: Time,
     pub end_time: Time,
-    pub course: i32
 }
 
 #[derive(Fields, Deserialize, Clone)]
 pub struct CenterScheduleHourForCreate {
-    pub week_day: i32,
     pub n_hour: i32,
     pub start_time: Time,
     pub end_time: Time,
-    pub course: i32
+}
+
+#[derive(Fields, Deserialize, Clone)]
+pub struct CenterScheduleHourForCheck {
+    pub n_hour: i32,
 }
 
 #[derive(FilterNodes, Deserialize, Default, Debug)]
 pub struct CenterScheduleHourFilter {
     id: Option<OpValsInt64>,
 
-    week_day: Option<OpValsInt64>,
     n_hour: Option<OpValsInt64>,
     #[modql(to_sea_value_fn = "time_to_sea_value")]
     pub(crate) start_time: Option<OpValsValue>,
     #[modql(to_sea_value_fn = "time_to_sea_value")]
     pub(crate) end_time: Option<OpValsValue>,
-    course: Option<OpValsInt64>,
 
     cid: Option<OpValsInt64>,
     #[modql(to_sea_value_fn = "time_to_sea_value")]
@@ -58,22 +57,18 @@ pub struct CenterScheduleHourFilter {
 impl Default for CenterScheduleHourForUpdate {
     fn default() -> Self {
         Self {
-            week_day: 0,   // default value
             n_hour: 0,     // default value
             start_time: Time::MIDNIGHT  /* provide a value */,
             end_time: Time::MIDNIGHT    /* provide a value */,
-            course: 0,     // default value
         }
     }
 }
 
 #[derive(Fields, Deserialize)]
 pub struct CenterScheduleHourForUpdate {
-    pub week_day: i32,
     pub n_hour: i32,
     pub start_time: Time,
     pub end_time: Time,
-    pub course: i32
 }
 
 /// Marker trait

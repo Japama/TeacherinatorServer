@@ -1,6 +1,7 @@
+use serde_json::json;
 use lib_core::ctx::Ctx;
 use lib_core::model::ModelManager;
-use lib_core::model::center_schedule_hour::{CenterScheduleHour, CenterScheduleHourBmc, CenterScheduleHourFilter, CenterScheduleHourForCreate, CenterScheduleHourForUpdate};
+use lib_core::model::center_schedule_hour::{CenterScheduleHour, CenterScheduleHourBmc, CenterScheduleHourFilter, CenterScheduleHourForCheck, CenterScheduleHourForCreate, CenterScheduleHourForUpdate};
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsList};
 use crate::Error::UserNotAdmin;
@@ -16,6 +17,7 @@ pub fn rpc_router() -> RpcRouter {
         list_center_schedule_hours,
         update_center_schedule_hour,
         delete_center_schedule_hour,
+        check_hour_exists,
     )
 }
 
@@ -45,7 +47,7 @@ pub async fn list_center_schedule_hours(
     mm: ModelManager,
     params: ParamsList<CenterScheduleHourFilter>,
 ) -> Result<Vec<CenterScheduleHour>> {
-    if !&ctx.admin() { return Err(UserNotAdmin); }
+    // if !&ctx.admin() { return Err(UserNotAdmin); }
     let center_schedule_hours = CenterScheduleHourBmc::list(&ctx, &mm, params.filters, params.list_options).await?;
 
     Ok(center_schedule_hours)
@@ -74,4 +76,24 @@ pub async fn delete_center_schedule_hour(ctx: Ctx, mm: ModelManager, params: Par
     CenterScheduleHourBmc::delete(&ctx, &mm, id).await?;
 
     Ok(center_schedule_hour)
+}
+
+pub async fn check_hour_exists(
+    ctx: Ctx,
+    mm: ModelManager,
+    params: ParamsForCreate<CenterScheduleHourForCheck>,
+) -> Result<bool> {
+    if !&ctx.admin() {
+        return Err(UserNotAdmin);
+    }
+    let ParamsForCreate { data } = params;
+
+    let filter_json = json!({
+        "n_hour": {"$eq": data.n_hour },
+    });
+    let filter = vec![serde_json::from_value(filter_json)?];
+
+    let hours = CenterScheduleHourBmc::list(&ctx, &mm, Some(filter), None).await?;
+
+    Ok(hours.len() > 0)
 }

@@ -68,9 +68,9 @@ VALUES ('Atención a padres', 1000, false, true, 0, now(), 0, now());
 
 -- Groups
 INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
-VALUES (1, 1, 2024, 'A', '1000', 0, now(), 0, now());
+VALUES (1, 1, 2024, 'A', 'profesor2', 0, now(), 0, now());
 INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
-VALUES (1, 1, 2024, 'B', '1001', 0, now(), 0, now());
+VALUES (1, 1, 2024, 'B', 'profesor3', 0, now(), 0, now());
 
 -- Classroom
 INSERT INTO "classrooms" (building, floor, number, name, type_c, description, cid, ctime, mid, mtime)
@@ -79,11 +79,11 @@ VALUES ('Edificio1', 0, 1, 'Sala 1', 0, 'Habitación normal', 0, now(), 0, now()
 
 -- Insertar datos en la tabla schedules
 INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
+VALUES (1000, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
+INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
 VALUES (1001, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
 INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
 VALUES (1002, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
-INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
-VALUES (1003, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
 INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
 VALUES (null, 1000, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
 INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
@@ -124,8 +124,6 @@ VALUES (1000, 'Libre','', 0, 6, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP
 -- MARTES
 INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
 VALUES (1000, 'Matemáticas','Aula 01', 1, 0, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
-VALUES (1000, 'Guardia','Aula 02', 1, 1, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
 VALUES (1000, 'Matemáticas','Aula 03', 1, 2, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 INSERT INTO schedule_hours (schedule_id, subject_name, classroom_name, week_day, n_hour, course,cid, ctime, mid, mtime)
@@ -282,109 +280,110 @@ VALUES (1002, 'Libre','', 0, 6, 2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP
 
 
 -- Center schedule hours
--- Lunes
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (0, 0, '08:00:00', '08:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (0, 1, '08:55:00', '09:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (0, 2, '09:50:00', '10:45:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (0, 3, '10:45:00', '11:10:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (0, 4, '11:10:00', '12:05:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (0, 5, '12:05:00', '13:00:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (0, 6, '13:00:00', '13:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (0, 7, '13:55:00', '14:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO center_schedule_hours (n_hour, start_time, end_time, cid, ctime, mid, mtime)
+VALUES (0, '08:00:00', '08:55:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO center_schedule_hours (n_hour, start_time, end_time, cid, ctime, mid, mtime)
+VALUES (1, '08:55:00', '09:50:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO center_schedule_hours (n_hour, start_time, end_time, cid, ctime, mid, mtime)
+VALUES (2, '09:50:00', '10:45:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO center_schedule_hours (n_hour, start_time, end_time, cid, ctime, mid, mtime)
+VALUES (3, '10:45:00', '11:10:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO center_schedule_hours (n_hour, start_time, end_time, cid, ctime, mid, mtime)
+VALUES (4, '11:10:00', '12:05:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO center_schedule_hours (n_hour, start_time, end_time, cid, ctime, mid, mtime)
+VALUES (5, '12:05:00', '13:00:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO center_schedule_hours (n_hour, start_time, end_time, cid, ctime, mid, mtime)
+VALUES (6, '13:00:00', '13:55:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+INSERT INTO center_schedule_hours (n_hour, start_time, end_time, cid, ctime, mid, mtime)
+VALUES (7, '13:55:00', '14:50:00', 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 
--- Martes
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (1, 0, '08:00:00', '08:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (1, 1, '08:55:00', '09:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (1, 2, '09:50:00', '10:45:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (1, 3, '10:45:00', '11:10:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (1, 4, '11:10:00', '12:05:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (1, 5, '12:05:00', '13:00:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (1, 6, '13:00:00', '13:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (1, 7, '13:55:00', '14:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
 
--- Miércoles
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (2, 0, '08:00:00', '08:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (2, 1, '08:55:00', '09:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (2, 2, '09:50:00', '10:45:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (2, 3, '10:45:00', '11:10:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (2, 4, '11:10:00', '12:05:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (2, 5, '12:05:00', '13:00:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (2, 6, '13:00:00', '13:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (2, 7, '13:55:00', '14:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-
--- Jueves
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (3, 0, '08:00:00', '08:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (3, 1, '08:55:00', '09:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (3, 2, '09:50:00', '10:45:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (3, 3, '10:45:00', '11:10:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (3, 4, '11:10:00', '12:05:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (3, 5, '12:05:00', '13:00:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (3, 6, '13:00:00', '13:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (3, 7, '13:55:00', '14:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-
--- Viernes
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (4, 0, '08:00:00', '08:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (4, 1, '08:55:00', '09:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (4, 2, '09:50:00', '10:45:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (4, 3, '10:45:00', '11:10:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (4, 4, '11:10:00', '12:05:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (4, 5, '12:05:00', '13:00:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (4, 6, '13:00:00', '13:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (4, 7, '13:55:00', '14:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (5, 0, '08:00:00', '08:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (5, 1, '08:55:00', '09:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (5, 2, '09:50:00', '10:45:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (5, 3, '10:45:00', '11:10:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (5, 4, '11:10:00', '12:05:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (5, 5, '12:05:00', '13:00:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (5, 6, '13:00:00', '13:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
-INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
-VALUES (5, 7, '13:55:00', '14:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- -- Lunes
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (0, 0, '08:00:00', '08:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (0, 1, '08:55:00', '09:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (0, 2, '09:50:00', '10:45:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (0, 3, '10:45:00', '11:10:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (0, 4, '11:10:00', '12:05:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (0, 5, '12:05:00', '13:00:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (0, 6, '13:00:00', '13:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (0, 7, '13:55:00', '14:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+--
+-- -- Martes
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (1, 0, '08:00:00', '08:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (1, 1, '08:55:00', '09:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (1, 2, '09:50:00', '10:45:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (1, 3, '10:45:00', '11:10:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (1, 4, '11:10:00', '12:05:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (1, 5, '12:05:00', '13:00:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (1, 6, '13:00:00', '13:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (1, 7, '13:55:00', '14:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+--
+-- -- Miércoles
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (2, 0, '08:00:00', '08:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (2, 1, '08:55:00', '09:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (2, 2, '09:50:00', '10:45:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (2, 3, '10:45:00', '11:10:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (2, 4, '11:10:00', '12:05:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (2, 5, '12:05:00', '13:00:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (2, 6, '13:00:00', '13:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (2, 7, '13:55:00', '14:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+--
+-- -- Jueves
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (3, 0, '08:00:00', '08:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (3, 1, '08:55:00', '09:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (3, 2, '09:50:00', '10:45:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (3, 3, '10:45:00', '11:10:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (3, 4, '11:10:00', '12:05:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (3, 5, '12:05:00', '13:00:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (3, 6, '13:00:00', '13:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (3, 7, '13:55:00', '14:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+--
+-- -- Viernes
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (4, 0, '08:00:00', '08:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (4, 1, '08:55:00', '09:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (4, 2, '09:50:00', '10:45:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (4, 3, '10:45:00', '11:10:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (4, 4, '11:10:00', '12:05:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (4, 5, '12:05:00', '13:00:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (4, 6, '13:00:00', '13:55:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);
+-- INSERT INTO center_schedule_hours (week_day, n_hour, start_time, end_time, course, cid, ctime, mid, mtime)
+-- VALUES (4, 7, '13:55:00', '14:50:00',2024, 0, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);

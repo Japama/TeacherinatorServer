@@ -30,18 +30,18 @@ pub struct ScheduleForCreate {
 
 #[derive(FilterNodes, Deserialize, Default, Debug)]
 pub struct ScheduleFilter {
-    id: Option<OpValsInt64>,
+    pub id: Option<OpValsInt64>,
 
-    user_id: Option<OpValsInt64>,
-    group_id: Option<OpValsInt64>,
-    course: Option<OpValsInt64>,
+    pub user_id: Option<OpValsInt64>,
+    pub group_id: Option<OpValsInt64>,
+    pub course: Option<OpValsInt64>,
 
-    cid: Option<OpValsInt64>,
+    pub cid: Option<OpValsInt64>,
     #[modql(to_sea_value_fn = "time_to_sea_value")]
-    ctime: Option<OpValsValue>,
-    mid: Option<OpValsInt64>,
+    pub ctime: Option<OpValsValue>,
+    pub mid: Option<OpValsInt64>,
     #[modql(to_sea_value_fn = "time_to_sea_value")]
-    mtime: Option<OpValsValue>,
+    pub mtime: Option<OpValsValue>,
 }
 
 #[derive(Fields, Default, Deserialize)]
