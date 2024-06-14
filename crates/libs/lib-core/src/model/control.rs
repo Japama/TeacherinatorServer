@@ -1,21 +1,22 @@
-use log::debug;
 use modql::field::{Fields, HasFields};
-use modql::filter::{ListOptions, OpValInt32, OpValInt64, OpValsInt32, OpValsInt64, OpValsString, OpValString};
-use sea_query::{Iden};
+use modql::filter::{OpValInt32, OpValInt64, OpValString, OpValsInt32, OpValsInt64, OpValsString};
+use sea_query::Iden;
 use serde::Serialize;
 use serde_with::serde_as;
 use sqlx::postgres::PgRow;
-use sqlx::{ FromRow};
+use sqlx::FromRow;
 use time::{OffsetDateTime, Time};
 
 use crate::ctx::Ctx;
 use crate::model::base::PostgresDbBmc;
 use crate::model::center_schedule_hour::CenterScheduleHourBmc;
-use crate::model::schedule_hour::{ScheduleHour, ScheduleHourBmc, ScheduleHourFilter, ScheduleHourForUpdate};
+use crate::model::schedule::{Schedule, ScheduleBmc, ScheduleFilter};
+use crate::model::schedule_hour::{
+    ScheduleHour, ScheduleHourBmc, ScheduleHourFilter, ScheduleHourForUpdate,
+};
 use crate::model::user::UserBmc;
 use crate::model::ModelManager;
 use crate::model::Result;
-use crate::model::schedule::{Schedule, ScheduleBmc, ScheduleFilter};
 
 // region:    --- Control Types
 #[serde_as]
@@ -56,41 +57,77 @@ impl ControlBmc {
     pub async fn update_guards(ctx: &Ctx, mm: &ModelManager) -> Result<()> {
         let now: Time = get_current_time(true, 12, 35);
         let current_week_day: i32 = OffsetDateTime::now_utc().weekday() as i32;
-        let course=  OffsetDateTime::now_utc().year();
+        let course = OffsetDateTime::now_utc().year();
 
         let center_schedule_hours = CenterScheduleHourBmc::list(&ctx, &mm, None, None).await?;
-        let current_n_hour = center_schedule_hours.iter()
+        let current_n_hour = center_schedule_hours
+            .iter()
             .find(|schedule_hour| now >= schedule_hour.start_time && now <= schedule_hour.end_time)
             .map_or(0, |schedule_hour| schedule_hour.n_hour);
 
         let users = UserBmc::list(&ctx, &mm, None, None).await?;
         let not_in_center_users: Vec<_> = users.iter().filter(|user| !user.in_center).collect();
-        let not_in_center_user_ids: Vec<_> = not_in_center_users.iter().map(|user| user.id).collect();
+        let not_in_center_user_ids: Vec<_> =
+            not_in_center_users.iter().map(|user| user.id).collect();
 
-        let schedules = ScheduleBmc::list(&ctx, &mm, current_schedule_filters(not_in_center_user_ids, course as i64), None).await?;
-        let not_in_center_user_schedules_ids: Vec<_> = schedules.iter().map(|schedule| schedule.id).collect();
+        let schedules = ScheduleBmc::list(
+            &ctx,
+            &mm,
+            current_schedule_filters(not_in_center_user_ids, course as i64),
+            None,
+        )
+        .await?;
+        let not_in_center_user_schedules_ids: Vec<_> =
+            schedules.iter().map(|schedule| schedule.id).collect();
 
-        let current_schedule_hours = ScheduleHourBmc::list(&ctx, &mm, current_hour_filters(current_week_day, course, current_n_hour), None).await?;
-        let mut current_guard_hours = ScheduleHourBmc::list(&ctx, &mm, guard_filters(not_in_center_user_schedules_ids, current_week_day, course, current_n_hour), None).await?.into_iter();
+        let current_schedule_hours = ScheduleHourBmc::list(
+            &ctx,
+            &mm,
+            current_hour_filters(current_week_day, course, current_n_hour),
+            None,
+        )
+        .await?;
+        let mut current_guard_hours = ScheduleHourBmc::list(
+            &ctx,
+            &mm,
+            guard_filters(
+                not_in_center_user_schedules_ids,
+                current_week_day,
+                course,
+                current_n_hour,
+            ),
+            None,
+        )
+        .await?
+        .into_iter();
 
-        let not_in_center_users_ids: Vec<i64> = not_in_center_users.iter().map(|user| user.id).collect();
-        let non_cover_schedules: Vec<&Schedule> = schedules.iter().filter(|schedule| {
-            if let Some(user_id) = schedule.user_id {
-                not_in_center_users_ids.contains(&user_id)
-            } else {
-                false
-            }
-        }).collect();
+        let not_in_center_users_ids: Vec<i64> =
+            not_in_center_users.iter().map(|user| user.id).collect();
+        let non_cover_schedules: Vec<&Schedule> = schedules
+            .iter()
+            .filter(|schedule| {
+                if let Some(user_id) = schedule.user_id {
+                    not_in_center_users_ids.contains(&user_id)
+                } else {
+                    false
+                }
+            })
+            .collect();
 
-        let non_cover_schedule_ids: Vec<i64> = non_cover_schedules.iter().map(|schedule| schedule.id).collect();
-        let relevant_schedule_hours: Vec<&ScheduleHour> = current_schedule_hours.iter().filter(|schedule_hour| {
-            non_cover_schedule_ids.contains(&schedule_hour.schedule_id) &&
-                schedule_hour.subject_name != "Libre" &&
-                schedule_hour.subject_name != "Guardia" &&
-                schedule_hour.notes != Some("Cubierta".to_string())
-        }).collect();
+        let non_cover_schedule_ids: Vec<i64> = non_cover_schedules
+            .iter()
+            .map(|schedule| schedule.id)
+            .collect();
+        let relevant_schedule_hours: Vec<&ScheduleHour> = current_schedule_hours
+            .iter()
+            .filter(|schedule_hour| {
+                non_cover_schedule_ids.contains(&schedule_hour.schedule_id)
+                    && schedule_hour.subject_name != "Libre"
+                    && schedule_hour.subject_name != "Guardia"
+                    && schedule_hour.notes != Some("Cubierta".to_string())
+            })
+            .collect();
 
-        
         for schedule_hour in relevant_schedule_hours {
             if let Some(guard_hour) = current_guard_hours.next() {
                 let notes = Some(format!("Sustitución en {}", schedule_hour.classroom_name));
@@ -101,10 +138,8 @@ impl ControlBmc {
             }
         }
 
-
         Ok(())
     }
-
 }
 
 fn get_current_time(testing: bool, hour: u8, minute: u8) -> Time {
@@ -116,7 +151,12 @@ fn get_current_time(testing: bool, hour: u8, minute: u8) -> Time {
     now
 }
 
-async fn update_schedule_hour(ctx: &Ctx, mm: &ModelManager, schedule_hour: &ScheduleHour, notes: Option<String>) -> Result<()> {
+async fn update_schedule_hour(
+    ctx: &Ctx,
+    mm: &ModelManager,
+    schedule_hour: &ScheduleHour,
+    notes: Option<String>,
+) -> Result<()> {
     let schedule_hour_u = ScheduleHourForUpdate {
         schedule_id: schedule_hour.schedule_id,
         classroom_name: schedule_hour.classroom_name.to_string(),
@@ -129,7 +169,10 @@ async fn update_schedule_hour(ctx: &Ctx, mm: &ModelManager, schedule_hour: &Sche
     ScheduleHourBmc::update(&ctx, &mm, schedule_hour.id, schedule_hour_u).await
 }
 
-fn current_schedule_filters(not_in_center_user_ids: Vec<i64>, course: i64) -> Option<Vec<ScheduleFilter>> {
+fn current_schedule_filters(
+    not_in_center_user_ids: Vec<i64>,
+    course: i64,
+) -> Option<Vec<ScheduleFilter>> {
     Some(vec![ScheduleFilter {
         id: None,
         user_id: Some(OpValsInt64(vec![OpValInt64::In(not_in_center_user_ids)])),
@@ -138,11 +181,15 @@ fn current_schedule_filters(not_in_center_user_ids: Vec<i64>, course: i64) -> Op
         cid: None,
         ctime: None,
         mid: None,
-        mtime: None
+        mtime: None,
     }])
 }
 
-fn current_hour_filters(current_week_day: i32, course: i32, current_n_hour: i32) -> Option<Vec<ScheduleHourFilter>> {
+fn current_hour_filters(
+    current_week_day: i32,
+    course: i32,
+    current_n_hour: i32,
+) -> Option<Vec<ScheduleHourFilter>> {
     Some(vec![ScheduleHourFilter {
         id: None,
         schedule_id: None,
@@ -155,14 +202,21 @@ fn current_hour_filters(current_week_day: i32, course: i32, current_n_hour: i32)
         cid: None,
         ctime: None,
         mid: None,
-        mtime: None
+        mtime: None,
     }])
 }
 
-fn guard_filters(not_in_center_user_schedules_ids: Vec<i64>, current_week_day: i32, course: i32, current_n_hour: i32) -> Option<Vec<ScheduleHourFilter>> {
+fn guard_filters(
+    not_in_center_user_schedules_ids: Vec<i64>,
+    current_week_day: i32,
+    course: i32,
+    current_n_hour: i32,
+) -> Option<Vec<ScheduleHourFilter>> {
     Some(vec![ScheduleHourFilter {
         id: None,
-        schedule_id: Some(OpValsInt64(vec![OpValInt64::NotIn(not_in_center_user_schedules_ids)])),
+        schedule_id: Some(OpValsInt64(vec![OpValInt64::NotIn(
+            not_in_center_user_schedules_ids,
+        )])),
         classroom_name: None,
         subject_name: Some(OpValsString(vec![OpValString::Eq("Guardia".to_string())])),
         week_day: Some(OpValsInt32(vec![OpValInt32::Eq(current_week_day)])),
@@ -172,7 +226,7 @@ fn guard_filters(not_in_center_user_schedules_ids: Vec<i64>, current_week_day: i
         cid: None,
         ctime: None,
         mid: None,
-        mtime: None
+        mtime: None,
     }])
 }
 
@@ -180,7 +234,7 @@ fn guard_filters(not_in_center_user_schedules_ids: Vec<i64>, current_week_day: i
 #[cfg(test)]
 mod tests {
     // use anyhow::{Context, Result};
-    use anyhow::{Result};
+    use anyhow::Result;
     // use serde_json::json;
     use serial_test::serial;
 

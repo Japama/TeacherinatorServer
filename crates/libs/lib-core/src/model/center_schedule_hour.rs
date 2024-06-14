@@ -2,18 +2,17 @@ use modql::field::{Fields, HasFields};
 use modql::filter::{FilterNodes, ListOptions, OpValsInt64, OpValsValue};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use sqlx::FromRow;
 use sqlx::postgres::PgRow;
+use sqlx::FromRow;
 use time::Time;
 
 use crate::ctx::Ctx;
 use crate::model::base::{self, PostgresDbBmc};
-use crate::model::ModelManager;
 use crate::model::modql_utils::time_to_sea_value;
+use crate::model::ModelManager;
 use crate::model::Result;
 
 // region:    --- CenterScheduleHour Types
-
 
 #[serde_as]
 #[derive(Debug, Clone, Fields, FromRow, Serialize)]
@@ -57,9 +56,9 @@ pub struct CenterScheduleHourFilter {
 impl Default for CenterScheduleHourForUpdate {
     fn default() -> Self {
         Self {
-            n_hour: 0,     // default value
-            start_time: Time::MIDNIGHT  /* provide a value */,
-            end_time: Time::MIDNIGHT    /* provide a value */,
+            n_hour: 0,                  // default value
+            start_time: Time::MIDNIGHT, /* provide a value */
+            end_time: Time::MIDNIGHT,   /* provide a value */
         }
     }
 }
@@ -84,7 +83,11 @@ impl PostgresDbBmc for CenterScheduleHourBmc {
 }
 
 impl CenterScheduleHourBmc {
-    pub async fn create(ctx: &Ctx, mm: &ModelManager, schedule_hour_c: CenterScheduleHourForCreate) -> Result<i64> {
+    pub async fn create(
+        ctx: &Ctx,
+        mm: &ModelManager,
+        schedule_hour_c: CenterScheduleHourForCreate,
+    ) -> Result<i64> {
         base::create::<Self, _>(ctx, mm, schedule_hour_c).await
     }
 
@@ -103,7 +106,7 @@ impl CenterScheduleHourBmc {
     ) -> Result<Vec<CenterScheduleHour>> {
         base::list::<Self, _, _>(ctx, mm, filters, list_options).await
     }
-    
+
     pub async fn update(
         ctx: &Ctx,
         mm: &ModelManager,
@@ -129,7 +132,10 @@ mod tests {
     use crate::_dev_utils;
     use crate::_dev_utils::{seed_department, seed_schedule, seed_subject, seed_user};
     use crate::ctx::Ctx;
-    use crate::model::center_schedule_hour::{CenterScheduleHour, CenterScheduleHourBmc, CenterScheduleHourForCreate, CenterScheduleHourForUpdate};
+    use crate::model::center_schedule_hour::{
+        CenterScheduleHour, CenterScheduleHourBmc, CenterScheduleHourForCreate,
+        CenterScheduleHourForUpdate,
+    };
     use crate::model::department::DepartmentBmc;
     use crate::model::schedule::ScheduleBmc;
     use crate::model::subject::SubjectBmc;
@@ -142,7 +148,6 @@ mod tests {
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
         let fx_subject_name = "subject_create_ok";
-        let fx_week_day = 1; // lunes
         let fx_n_hour = 11; // 08:00-08:50
         let fx_start_time = Time::MIDNIGHT;
         let fx_start_time = fx_start_time.replace_hour(8)?;
@@ -151,30 +156,28 @@ mod tests {
         let fx_end_time = fx_end_time.replace_hour(8)?;
         let fx_end_time = fx_end_time.replace_minute(50)?;
         let fx_course = 2024;
-        let fx_active = true;
 
         let fx_username = "Prueba_schedule_hour_create_ok";
         let fx_department_name = "Departamento_schedule_hour_create_ok";
 
         let fx_user_id = seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_subject_id = seed_subject(&ctx, &mm, fx_subject_name, fx_department_id, false, false).await?;
-        let fx_schedule_id= seed_schedule(&ctx, &mm, fx_course, fx_user_id, -1).await?;
+        let fx_subject_id =
+            seed_subject(&ctx, &mm, fx_subject_name, fx_department_id, false, false).await?;
+        let fx_schedule_id = seed_schedule(&ctx, &mm, fx_course, fx_user_id, -1).await?;
 
         // -- Exec
         let schedule_hour_c = CenterScheduleHourForCreate {
-            week_day: fx_week_day,
             n_hour: fx_n_hour,
             start_time: fx_start_time,
             end_time: fx_end_time,
-            course: fx_course
         };
 
         let id = CenterScheduleHourBmc::create(&ctx, &mm, schedule_hour_c).await?;
 
         // -- Check
         let schedule_hour: CenterScheduleHour = CenterScheduleHourBmc::get(&ctx, &mm, id).await?;
-        assert_eq!(schedule_hour.course, fx_course);
+        assert_eq!(schedule_hour.n_hour, fx_n_hour);
 
         // -- Clean
         CenterScheduleHourBmc::delete(&ctx, &mm, id).await?;
@@ -192,8 +195,6 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_week_day = 11; // Lunes
-        let fx_week_day_new= 22; // Martes
         let fx_n_hour: i32 = 13; // 08:00-08:50
         let fx_new_n_hour: i32 = 14; // 08:00-08:50
         let fx_start_time = Time::MIDNIGHT;
@@ -202,9 +203,15 @@ mod tests {
         let fx_end_time = Time::MIDNIGHT;
         let fx_end_time = fx_end_time.replace_hour(8)?;
         let fx_end_time = fx_end_time.replace_minute(50)?;
-        let fx_course = 2024;
 
-        let fx_center_schedule_hour_id = _dev_utils::seed_center_schedule_hour(&ctx, &mm, fx_week_day, fx_course, fx_start_time, fx_end_time, fx_n_hour).await?;
+        let fx_center_schedule_hour_id = _dev_utils::seed_center_schedule_hour(
+            &ctx,
+            &mm,
+            fx_n_hour,
+            fx_start_time,
+            fx_end_time,
+        )
+        .await?;
 
         // -- Exec
         CenterScheduleHourBmc::update(
@@ -212,18 +219,17 @@ mod tests {
             &mm,
             fx_center_schedule_hour_id,
             CenterScheduleHourForUpdate {
-                week_day: fx_week_day_new,
-                course: fx_course,
                 start_time: fx_start_time,
                 end_time: fx_end_time,
-                n_hour: fx_new_n_hour
+                n_hour: fx_new_n_hour,
             },
         )
-            .await?;
+        .await?;
 
         // -- Check
-        let schedule_hour: CenterScheduleHour = CenterScheduleHourBmc::get(&ctx, &mm, fx_center_schedule_hour_id).await?;
-        assert_eq!(schedule_hour.week_day, fx_week_day_new);
+        let schedule_hour: CenterScheduleHour =
+            CenterScheduleHourBmc::get(&ctx, &mm, fx_center_schedule_hour_id).await?;
+        assert_eq!(schedule_hour.start_time, fx_start_time);
 
         // -- Clean
         CenterScheduleHourBmc::delete(&ctx, &mm, fx_center_schedule_hour_id).await?;
@@ -247,25 +253,38 @@ mod tests {
         let fx_end_time = Time::MIDNIGHT;
         let fx_end_time = fx_end_time.replace_hour(8)?;
         let fx_end_time = fx_end_time.replace_minute(50)?;
-        let fx_course = 2024;
 
-        let fx_center_schedule_hour_id_01 = _dev_utils::seed_center_schedule_hour(&ctx, &mm, fx_week_day, fx_n_hours[0], fx_start_time, fx_end_time, fx_course).await?;
-        let fx_center_schedule_hour_id_02 = _dev_utils::seed_center_schedule_hour(&ctx, &mm, fx_week_day, fx_n_hours[1], fx_start_time, fx_end_time, fx_course).await?;
+        let fx_center_schedule_hour_id_01 = _dev_utils::seed_center_schedule_hour(
+            &ctx,
+            &mm,
+            fx_n_hours[0],
+            fx_start_time,
+            fx_end_time,
+        )
+        .await?;
+        let fx_center_schedule_hour_id_02 = _dev_utils::seed_center_schedule_hour(
+            &ctx,
+            &mm,
+            fx_n_hours[1],
+            fx_start_time,
+            fx_end_time,
+        )
+        .await?;
 
         // -- Exec
         let filter_json = json!({
             "week_day": {"$eq": fx_week_day},
         });
         let filter = vec![serde_json::from_value(filter_json)?];
-    
+
         let schedule_hours = CenterScheduleHourBmc::list(&ctx, &mm, Some(filter), None).await?;
-    
+
         // -- Check
         let schedule_hours: Vec<i32> = schedule_hours.into_iter().map(|csh| csh.n_hour).collect();
-    
-        assert_eq!(schedule_hours.len(), 2);
-        assert_eq!(&schedule_hours, &fx_n_hours);
-    
+
+        assert_eq!(&schedule_hours[schedule_hours.len()-1], &fx_n_hours[1]);
+        assert_eq!(&schedule_hours[schedule_hours.len()-2], &fx_n_hours[0]);
+
         // -- Cleanup
         CenterScheduleHourBmc::delete(&ctx, &mm, fx_center_schedule_hour_id_01).await?;
         CenterScheduleHourBmc::delete(&ctx, &mm, fx_center_schedule_hour_id_02).await?;

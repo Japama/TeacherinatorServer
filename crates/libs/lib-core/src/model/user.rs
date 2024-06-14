@@ -51,8 +51,6 @@ pub struct UserFilter {
     username: Option<OpValsString>,
     is_admin: Option<OpValsBool>,
     in_center: Option<OpValsBool>,
-    last_checkin: Option<Time>,
-    last_checkout: Option<Time>,
     active: Option<OpValsBool>,
     department_id: Option<OpValsInt64>,
     substituting_id: Option<OpValsInt64>,
@@ -389,7 +387,7 @@ mod tests {
     use serde_json::json;
     use serial_test::serial;
 
-    use crate::_dev_utils;
+    use crate::_dev_utils::{self, seed_department};
     use crate::ctx::Ctx;
     use crate::model::user::{User, UserBmc, UserForCreate, UserForUpdate};
 
@@ -420,12 +418,17 @@ mod tests {
         let ctx = Ctx::root_ctx();
         let fx_username = "Prueba_Crear";
         let fx_pwd = "Contraseña";
+        let fx_department_name = "Department_test_create_user_oK";
+        let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
 
         // -- Exec
         let user_c = UserForCreate {
             username: fx_username.to_string(),
             pwd: fx_pwd.to_string(),
             is_admin: false,
+            active: false,
+            department_id: Some(fx_department_id),
+            substituting_id: None,
         };
 
         let id = UserBmc::create(&ctx, &mm, user_c).await?;
@@ -450,6 +453,10 @@ mod tests {
         let fx_username_new = "Juanba test update Petao";
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_admin = true;
+        let fx_active = true;
+        let fx_department_name = "Department_test_update_user_oK";
+        let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
+
 
         // -- Exec
         UserBmc::update(
@@ -458,7 +465,14 @@ mod tests {
             fx_user_id,
             UserForUpdate {
                 username: fx_username_new.to_string(),
-                is_admin: fx_admin
+                is_admin: fx_admin,
+                active: fx_active,
+                department_id: Some(fx_department_id),
+                substituting_id: None,
+                substitutions: 0,
+                in_center: false,
+                last_checkin: None,
+                last_checkout: None,
             },
         )
         .await?;

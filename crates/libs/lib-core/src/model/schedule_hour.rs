@@ -158,7 +158,6 @@ mod tests {
         let fx_week_day = 1; // lunes
         let fx_n_hour = 1; // 08:00-08:50
         let fx_course = 2024;
-        let fx_active = true;
         
         let fx_username = "Prueba_schedule_hour_create_ok";
         let fx_department_name = "Departamento_schedule_hour_create_ok";
@@ -207,7 +206,6 @@ mod tests {
         let fx_week_day_new= 2; // Martes
         let fx_n_hour = 1; // 08:00-08:50
         let fx_course = 2024;
-        let fx_active = true;
         
         let fx_username = "Prueba_schedule_hour_update_ok";
         let fx_department_name = "Departamento_schedule_hour_create_ok";
@@ -262,7 +260,6 @@ mod tests {
         let fx_week_day_2= 2; // Martes
         let fx_n_hour = 1; // 08:00-08:50
         let fx_course = 2024;
-        let fx_active = true;
 
         let fx_username = "Prueba_list_by_course_ok";
         let fx_department_name = "Departamento_list_by_course_ok";

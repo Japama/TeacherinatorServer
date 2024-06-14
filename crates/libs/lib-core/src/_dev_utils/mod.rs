@@ -154,7 +154,7 @@ pub async fn seed_schedule_hour(ctx: &Ctx, mm: &ModelManager, schedule_id: i64, 
         .await
 }
 
-pub async fn seed_center_schedule_hour(ctx: &Ctx, mm: &ModelManager, week_day: i32, n_hour: i32, start_time: Time, end_time: Time, course: i32) -> model::Result<i64> {
+pub async fn seed_center_schedule_hour(ctx: &Ctx, mm: &ModelManager, n_hour: i32, start_time: Time, end_time: Time) -> model::Result<i64> {
     CenterScheduleHourBmc::create(
         ctx,
         mm,

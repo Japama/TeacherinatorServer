@@ -144,7 +144,6 @@ mod tests {
         let fx_course = 2024;
         let fx_username = "Prueba_schedule_create_ok";
         let fx_department_name = "Departamento_schedule_create_ok";
-        let fx_active = true;
 
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id= _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
@@ -181,11 +180,10 @@ mod tests {
         let fx_username = "Prueba_schedule_update_ok";
         let fx_department_name = "Departamento_schedule_update_ok";
         let fx_group_id = -1;
-        let fx_active = true;
 
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id= _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_schedule_id = _dev_utils::seed_schedule(&ctx, &mm, fx_course, fx_teacher_id, fx_group_id).await?;
+        let fx_schedule_id = _dev_utils::seed_schedule(&ctx, &mm, fx_course, fx_user_id, fx_group_id).await?;
 
         // -- Exec
         ScheduleBmc::update(
@@ -222,7 +220,6 @@ mod tests {
         let fx_username = "Usuario_schedule_list_by_name_ok";
         let fx_username_2 = "Usuario_schedule_list_by_name_ok_2";
         let fx_department_name = "Departamento_schedule_list_by_name_ok";
-        let fx_active = true;
 
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;

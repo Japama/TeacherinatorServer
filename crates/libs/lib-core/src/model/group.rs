@@ -126,14 +126,13 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_course = 1;
-        let fx_stage = 1;
+        let fx_course = 111;
+        let fx_stage = 111;
         let fx_year = 2024;
         let fx_letter = "A";
 
         let fx_username = "username_create_ok";
         let fx_department_name = "department_name_create_ok";
-        let fx_active = true;
         
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
@@ -142,7 +141,7 @@ mod tests {
         let group_c = GroupForCreate {
             course: fx_course,
             stage: fx_stage,
-            tutor_name: fx_user_id,
+            tutor_name: fx_username.to_string(),
             letter: fx_letter.to_string(),
             year: fx_year
         };
@@ -154,7 +153,7 @@ mod tests {
         assert_eq!(group.letter, fx_letter);
         assert_eq!(group.year, fx_year);
         assert_eq!(group.stage, fx_stage);
-        assert_eq!(group.tutor_name, fx_user_id);
+        assert_eq!(group.tutor_name, fx_username);
         assert_eq!(group.course, fx_course);
 
         // -- Clean
@@ -171,24 +170,25 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_course = 1;
-        let fx_stage = 1;
+        let fx_course = 111;
+        let fx_stage = 111;
         let fx_year = 2024;
         let fx_letter = "A";
         
-        let fx_course_new = 2;
-        let fx_stage_new = 2;
+        let fx_course_new = 222;
+        let fx_stage_new = 222;
         let fx_year_new = 2025;
         let fx_letter_new = "B";
 
         let fx_usernames = &["Prueba01", "Prueba02"];
         let fx_department_name = "department_name_update_ok";
-        let fx_active = true;
-        
+        let fx_tutor_name = fx_usernames[0];
+        let fx_tutor_name_new = fx_usernames[1];
+
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_usernames[0]).await?;
         let fx_user_id_new = _dev_utils::seed_user(&ctx, &mm, fx_usernames[1]).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_group_id = _dev_utils::seed_group(&ctx, &mm, fx_letter, fx_course, fx_stage, fx_year, fx_tutor_name).await?;
+        let fx_group_id = _dev_utils::seed_group(&ctx, &mm, fx_letter, fx_course, fx_stage, fx_year, fx_tutor_name.to_string()).await?;
 
         // -- Exec
         GroupBmc::update(
@@ -198,7 +198,7 @@ mod tests {
             GroupForUpdate {
                 course: fx_course_new,
                 stage: fx_stage_new,
-                tutor_name: fx_user_id_new,
+                tutor_name: fx_tutor_name_new.to_string(),
                 letter: fx_letter_new.to_string(),
                 year: fx_year_new
             },
@@ -210,7 +210,7 @@ mod tests {
         assert_eq!(group.letter, fx_letter_new);
         assert_eq!(group.year, fx_year_new);
         assert_eq!(group.course, fx_course_new);
-        assert_eq!(group.tutor_name, fx_user_id_new);
+        assert_eq!(group.tutor_name, fx_tutor_name_new);
         assert_eq!(group.stage, fx_stage_new);
 
         // -- Clean
@@ -235,7 +235,6 @@ mod tests {
         let fx_course = 1;
         let fx_stage = 1;
         let fx_year = 2024;
-        let fx_active = true;
         
         let fx_username = "username_list_by_name_ok";
         let fx_department_name = "department_name_list_by_name_ok";
@@ -244,8 +243,8 @@ mod tests {
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
 
 
-        let fx_id_01 = _dev_utils::seed_group(&ctx, &mm, fx_letters[0], fx_course, fx_stage, fx_year, fx_user_id).await?;
-        let fx_id_02 = _dev_utils::seed_group(&ctx, &mm, fx_letters[1], fx_course, fx_stage, fx_year, fx_user_id).await?;
+        let fx_id_01 = _dev_utils::seed_group(&ctx, &mm, fx_letters[0], fx_course, fx_stage, fx_year, fx_username.to_string()).await?;
+        let fx_id_02 = _dev_utils::seed_group(&ctx, &mm, fx_letters[1], fx_course, fx_stage, fx_year, fx_username.to_string()).await?;
 
         // -- Exec
         let filter_json = json!({
