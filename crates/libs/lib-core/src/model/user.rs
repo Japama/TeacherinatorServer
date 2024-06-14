@@ -1,4 +1,3 @@
-use log::debug;
 use modql::field::{Field, Fields, HasFields};
 use modql::filter::{FilterNodes, ListOptions, OpValsBool, OpValsInt64, OpValsString, OpValsValue};
 use sea_query::{Expr, Iden, PostgresQueryBuilder, Query};
@@ -26,24 +25,37 @@ use crate::model::Result;
 pub struct User {
     pub id: i64,
     pub username: String,
-    pub isadmin: bool,
+    pub is_admin: bool,
     pub in_center: bool,
     pub last_checkin: Option<Time>,
     pub last_checkout: Option<Time>,
+    pub active: bool,
+    pub department_id: Option<i64>,
+    pub substituting_id: Option<i64>,
+    pub substitutions: i64,
 }
 
 #[derive(Fields, Deserialize, Clone)]
 pub struct UserForCreate {
     pub username: String,
-    pub isadmin: bool,
+    pub is_admin: bool,
     pub pwd: String,
+    pub active: bool,
+    pub department_id: Option<i64>,
+    pub substituting_id: Option<i64>,
 }
 
 #[derive(FilterNodes, Deserialize, Default, Debug)]
 pub struct UserFilter {
     id: Option<OpValsInt64>,
     username: Option<OpValsString>,
-    isadmin: Option<OpValsBool>,
+    is_admin: Option<OpValsBool>,
+    in_center: Option<OpValsBool>,
+    active: Option<OpValsBool>,
+    department_id: Option<OpValsInt64>,
+    substituting_id: Option<OpValsInt64>,
+    substitutions: Option<OpValsInt64>,
+
 
     cid: Option<OpValsInt64>,
     #[modql(to_sea_value_fn = "time_to_sea_value")]
@@ -56,7 +68,14 @@ pub struct UserFilter {
 #[derive(Fields, Default, Deserialize, Clone)]
 pub struct UserForUpdate {
     pub username: String,
-    pub isadmin: bool,
+    pub is_admin: bool,
+    pub in_center: bool,
+    pub last_checkin: Option<Time>,
+    pub last_checkout: Option<Time>,
+    pub active: bool,
+    pub department_id: Option<i64>,
+    pub substituting_id: Option<i64>,
+    pub substitutions: i64,
 }
 
 #[derive(Fields, Default, Deserialize, Clone)]
@@ -69,15 +88,22 @@ pub struct UserForCheckin {
 #[derive(Fields, Default, Deserialize, Clone)]
 pub struct UserForUpdatePwd {
     pub username: String,
-    pub isadmin: bool,
     pub pwd: String,
+    pub is_admin: bool,
+    pub in_center: bool,
+    pub last_checkin: Option<Time>,
+    pub last_checkout: Option<Time>,
+    pub active: bool,
+    pub department_id: Option<i64>,
+    pub substituting_id: Option<i64>,
+    pub substitutions: i64,
 }
 
 #[derive(Clone, FromRow, Fields, Debug)]
 pub struct UserForLogin {
     pub id: i64,
     pub username: String,
-    pub isadmin: bool,
+    pub is_admin: bool,
 
     // -- pwd and token info
     pub pwd: Option<String>,
@@ -90,6 +116,7 @@ pub struct UserForLogin {
 pub struct UserForAuth {
     pub id: i64,
     pub username: String,
+    pub is_admin: bool,
 
     // -- token info
     pub token_salt: Uuid,
@@ -108,7 +135,15 @@ impl UserBy for UserForAuth {}
 enum UserIden {
     Id,
     Username,
+    IsAdmin,
     Pwd,
+    DepartmentId,
+    InCenter,
+    LastCheckin,
+    LastCheckout,
+    Active,
+    SubstitutingId,
+    Substitutions
 }
 
 // endregion: --- User Types
@@ -132,8 +167,6 @@ impl UserBmc {
     }
 
     pub async fn get_current(ctx: &Ctx, mm: &ModelManager) -> Result<User> {
-        let user: Result<User> = base::get::<Self, _>(ctx, mm, ctx.user_id()).await;
-        debug!("{}", user?.last_checkout.unwrap().to_string());
         base::get::<Self, _>(ctx, mm, ctx.user_id()).await
     }
 
@@ -287,7 +320,65 @@ impl UserBmc {
 
         Ok(user)
     }
+
+    pub async fn count_users_by_department(
+        _ctx: &Ctx,
+        mm: &ModelManager,
+        department_id: i64,
+    ) -> Result<i64> {
+        let db = mm.postgres_db();
+
+        // -- Build query
+        let mut query = Query::select();
+        query
+            .expr(Expr::col(UserIden::Id).count())
+            .from(UserBmc::table_ref())
+            .and_where(Expr::col(UserIden::DepartmentId).eq(department_id));
+
+        // -- Exec query
+        let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
+        let result: (i64,) = sqlx::query_as_with(&sql, values).fetch_one(db).await?;
+
+        Ok(result.0)
+    }
+
+    pub async fn users_by_department(
+        _ctx: &Ctx,
+        mm: &ModelManager,
+        department_id: i64,
+    ) -> Result<Vec<User>> {
+        let db = mm.postgres_db();
+
+        // -- Build query
+        let mut query = Query::select();
+        query
+            .from(UserBmc::table_ref())
+            .columns(vec![
+                UserIden::Id,
+                UserIden::Username,
+                UserIden::Pwd,
+                UserIden::IsAdmin,
+                UserIden::DepartmentId,
+                UserIden::InCenter,
+                UserIden::LastCheckin,
+                UserIden::LastCheckout,
+                UserIden::Active,
+                UserIden::SubstitutingId,
+                UserIden::Substitutions
+            ])
+            .and_where(Expr::col(UserIden::DepartmentId).eq(department_id));
+
+        // -- Exec query
+        let (sql, values) = query.build_sqlx(PostgresQueryBuilder);
+        let result = sqlx::query_as_with::<_, User, _>(&sql, values)
+            .fetch_all(db)
+            .await?;
+
+        Ok(result)
+    }
+
 }
+
 
 // region:    --- Tests
 #[cfg(test)]
@@ -296,7 +387,7 @@ mod tests {
     use serde_json::json;
     use serial_test::serial;
 
-    use crate::_dev_utils;
+    use crate::_dev_utils::{self, seed_department};
     use crate::ctx::Ctx;
     use crate::model::user::{User, UserBmc, UserForCreate, UserForUpdate};
 
@@ -327,12 +418,17 @@ mod tests {
         let ctx = Ctx::root_ctx();
         let fx_username = "Prueba_Crear";
         let fx_pwd = "Contraseña";
+        let fx_department_name = "Department_test_create_user_oK";
+        let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
 
         // -- Exec
         let user_c = UserForCreate {
             username: fx_username.to_string(),
             pwd: fx_pwd.to_string(),
-            isadmin: false,
+            is_admin: false,
+            active: false,
+            department_id: Some(fx_department_id),
+            substituting_id: None,
         };
 
         let id = UserBmc::create(&ctx, &mm, user_c).await?;
@@ -357,6 +453,10 @@ mod tests {
         let fx_username_new = "Juanba test update Petao";
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_admin = true;
+        let fx_active = true;
+        let fx_department_name = "Department_test_update_user_oK";
+        let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
+
 
         // -- Exec
         UserBmc::update(
@@ -365,7 +465,14 @@ mod tests {
             fx_user_id,
             UserForUpdate {
                 username: fx_username_new.to_string(),
-                isadmin: fx_admin
+                is_admin: fx_admin,
+                active: fx_active,
+                department_id: Some(fx_department_id),
+                substituting_id: None,
+                substitutions: 0,
+                in_center: false,
+                last_checkin: None,
+                last_checkout: None,
             },
         )
         .await?;

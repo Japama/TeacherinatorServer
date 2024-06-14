@@ -1,8 +1,6 @@
 use lib_core::ctx::Ctx;
 use lib_core::model::ModelManager;
-use lib_core::model::teacher::{
-    Teacher, TeacherBmc, TeacherFilter, TeacherForCreate, TeacherForUpdate,
-};
+
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsList};
 use crate::Result;

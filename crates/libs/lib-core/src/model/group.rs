@@ -20,7 +20,7 @@ pub struct Group {
     pub stage: i32,     // ESO, Bachiller, Ciclos
     pub year: i32,      // 2023/2024, 2024/2025
     pub letter: String,
-    pub tutor_id: i64,
+    pub tutor_name: String,
 }
 
 #[derive(Fields, Deserialize, Clone)]
@@ -29,7 +29,7 @@ pub struct GroupForCreate {
     pub stage: i32,     // ESO, Bachiller, Ciclos
     pub year: i32,      // 2023/2024, 2024/2025
     pub letter: String,
-    pub tutor_id: i64,
+    pub tutor_name: String,
 }
 
 #[derive(FilterNodes, Deserialize, Default, Debug)]
@@ -39,7 +39,7 @@ pub struct GroupFilter {
     stage: Option<OpValsInt64>,
     year: Option<OpValsInt64>,
     letter: Option<OpValsString>,
-    tutor_id: Option<OpValsInt64>,
+    tutor_name: Option<OpValsString>,
 
     cid: Option<OpValsInt64>,
     #[modql(to_sea_value_fn = "time_to_sea_value")]
@@ -55,7 +55,7 @@ pub struct GroupForUpdate {
     pub stage: i32,     // ESO, Bachiller, Ciclos
     pub year: i32,      // 2023/2024, 2024/2025
     pub letter: String,
-    pub tutor_id: i64,
+    pub tutor_name: String,
 }
 
 /// Marker trait
@@ -118,7 +118,6 @@ mod tests {
     use crate::ctx::Ctx;
     use crate::model::department::DepartmentBmc;
     use crate::model::group::{Group, GroupBmc, GroupForCreate, GroupForUpdate};
-    use crate::model::teacher::TeacherBmc;
     use crate::model::user::UserBmc;
 
     #[serial]
@@ -127,24 +126,22 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_course = 1;
-        let fx_stage = 1;
+        let fx_course = 111;
+        let fx_stage = 111;
         let fx_year = 2024;
         let fx_letter = "A";
 
         let fx_username = "username_create_ok";
         let fx_department_name = "department_name_create_ok";
-        let fx_active = true;
         
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_tutor_id = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id, fx_active).await?;
-        
+
         // -- Exec
         let group_c = GroupForCreate {
             course: fx_course,
             stage: fx_stage,
-            tutor_id: fx_tutor_id,
+            tutor_name: fx_username.to_string(),
             letter: fx_letter.to_string(),
             year: fx_year
         };
@@ -156,12 +153,11 @@ mod tests {
         assert_eq!(group.letter, fx_letter);
         assert_eq!(group.year, fx_year);
         assert_eq!(group.stage, fx_stage);
-        assert_eq!(group.tutor_id, fx_tutor_id);
+        assert_eq!(group.tutor_name, fx_username);
         assert_eq!(group.course, fx_course);
 
         // -- Clean
         GroupBmc::delete(&ctx, &mm, id).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_tutor_id).await?;
         DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
         
@@ -174,26 +170,25 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_course = 1;
-        let fx_stage = 1;
+        let fx_course = 111;
+        let fx_stage = 111;
         let fx_year = 2024;
         let fx_letter = "A";
         
-        let fx_course_new = 2;
-        let fx_stage_new = 2;
+        let fx_course_new = 222;
+        let fx_stage_new = 222;
         let fx_year_new = 2025;
         let fx_letter_new = "B";
 
         let fx_usernames = &["Prueba01", "Prueba02"];
         let fx_department_name = "department_name_update_ok";
-        let fx_active = true;
-        
+        let fx_tutor_name = fx_usernames[0];
+        let fx_tutor_name_new = fx_usernames[1];
+
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_usernames[0]).await?;
         let fx_user_id_new = _dev_utils::seed_user(&ctx, &mm, fx_usernames[1]).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_tutor_id = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id, fx_active).await?;
-        let fx_tutor_id_new = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id_new, fx_active).await?;
-        let fx_group_id = _dev_utils::seed_group(&ctx, &mm, fx_letter, fx_course, fx_stage, fx_year, fx_tutor_id).await?;
+        let fx_group_id = _dev_utils::seed_group(&ctx, &mm, fx_letter, fx_course, fx_stage, fx_year, fx_tutor_name.to_string()).await?;
 
         // -- Exec
         GroupBmc::update(
@@ -203,7 +198,7 @@ mod tests {
             GroupForUpdate {
                 course: fx_course_new,
                 stage: fx_stage_new,
-                tutor_id: fx_tutor_id_new,
+                tutor_name: fx_tutor_name_new.to_string(),
                 letter: fx_letter_new.to_string(),
                 year: fx_year_new
             },
@@ -215,13 +210,11 @@ mod tests {
         assert_eq!(group.letter, fx_letter_new);
         assert_eq!(group.year, fx_year_new);
         assert_eq!(group.course, fx_course_new);
-        assert_eq!(group.tutor_id, fx_tutor_id_new);
+        assert_eq!(group.tutor_name, fx_tutor_name_new);
         assert_eq!(group.stage, fx_stage_new);
 
         // -- Clean
         GroupBmc::delete(&ctx, &mm, fx_group_id).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_tutor_id).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_tutor_id_new).await?;
         DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id_new).await?;
@@ -242,18 +235,16 @@ mod tests {
         let fx_course = 1;
         let fx_stage = 1;
         let fx_year = 2024;
-        let fx_active = true;
         
         let fx_username = "username_list_by_name_ok";
         let fx_department_name = "department_name_list_by_name_ok";
 
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
-        let fx_tutor_id = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id, fx_active).await?;
 
 
-        let fx_id_01 = _dev_utils::seed_group(&ctx, &mm, fx_letters[0], fx_course, fx_stage, fx_year, fx_tutor_id).await?;
-        let fx_id_02 = _dev_utils::seed_group(&ctx, &mm, fx_letters[1], fx_course, fx_stage, fx_year, fx_tutor_id).await?;
+        let fx_id_01 = _dev_utils::seed_group(&ctx, &mm, fx_letters[0], fx_course, fx_stage, fx_year, fx_username.to_string()).await?;
+        let fx_id_02 = _dev_utils::seed_group(&ctx, &mm, fx_letters[1], fx_course, fx_stage, fx_year, fx_username.to_string()).await?;
 
         // -- Exec
         let filter_json = json!({
@@ -274,7 +265,6 @@ mod tests {
         // -- Cleanup
         GroupBmc::delete(&ctx, &mm, fx_id_01).await?;
         GroupBmc::delete(&ctx, &mm, fx_id_02).await?;
-        TeacherBmc::delete(&ctx, &mm, fx_tutor_id).await?;
         UserBmc::delete(&ctx, &mm, fx_user_id).await?;
         DepartmentBmc::delete(&ctx, &mm, fx_department_id).await?;
         

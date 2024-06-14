@@ -15,6 +15,7 @@ pub enum Error {
 
     // -- Login
     LoginFailUsernameNotFound,
+    UserNotAdmin,
     LoginFailUserHasNoPwd {
         user_id: i64,
     },

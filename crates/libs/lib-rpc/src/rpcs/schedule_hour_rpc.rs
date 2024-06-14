@@ -3,9 +3,9 @@ use lib_core::ctx::Ctx;
 use lib_core::model::ModelManager;
 use lib_core::model::schedule::ScheduleBmc;
 use lib_core::model::schedule_hour::{ScheduleHour, ScheduleHourBmc, ScheduleHourFilter, ScheduleHourForCreate, ScheduleHourForUpdate};
-use lib_core::model::teacher::TeacherBmc;
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsList};
+use crate::Error::UserNotAdmin;
 use crate::Result;
 use crate::router::RpcRouter;
 use crate::rpc_router;
@@ -27,6 +27,7 @@ pub async fn create_schedule_hour(
     mm: ModelManager,
     params: ParamsForCreate<ScheduleHourForCreate>,
 ) -> Result<ScheduleHour> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForCreate { data } = params;
     let id = ScheduleHourBmc::create(&ctx, &mm, data.clone()).await?;
     let schedule_hour = ScheduleHourBmc::get(&ctx, &mm, id).await?;
@@ -35,14 +36,13 @@ pub async fn create_schedule_hour(
 }
 
 pub async fn get_schedule_hour(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<ScheduleHour> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
     let schedule_hour = ScheduleHourBmc::get(&ctx, &mm, id).await?;
     Ok(schedule_hour)
 }
 pub async fn get_user_schedule_hours(ctx: Ctx, mm: ModelManager) -> Result<Vec<ScheduleHour>>{
-    let teacher_vec = TeacherBmc::get_user_teacher(&ctx, &mm).await?;
-    let teacher = teacher_vec.first().unwrap();
-    let schedules = ScheduleBmc::get_teacher_schedule(&ctx, &mm, teacher.id).await?;
+    let schedules = ScheduleBmc::get_teacher_schedule(&ctx, &mm, ctx.user_id()).await?;
     let schedule = schedules.first().unwrap().clone();
 
     let filters = Some(vec![ScheduleHourFilter {
@@ -62,6 +62,7 @@ pub async fn list_schedule_hours(
     mm: ModelManager,
     params: ParamsList<ScheduleHourFilter>,
 ) -> Result<Vec<ScheduleHour>> {
+    // if !&ctx.admin() { return Err(UserNotAdmin); }
     let schedule_hours = ScheduleHourBmc::list(&ctx, &mm, params.filters, params.list_options).await?;
 
     Ok(schedule_hours)
@@ -72,6 +73,7 @@ pub async fn update_schedule_hour(
     mm: ModelManager,
     params: ParamsForUpdate<ScheduleHourForUpdate>,
 ) -> Result<ScheduleHour> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForUpdate { id, data } = params;
 
     ScheduleHourBmc::update(&ctx, &mm, id, data).await?;
@@ -82,6 +84,7 @@ pub async fn update_schedule_hour(
 }
 
 pub async fn delete_schedule_hour(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<ScheduleHour> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
 
     let schedule_hour = ScheduleHourBmc::get(&ctx, &mm, id).await?;

@@ -1,8 +1,12 @@
+use chrono::{Datelike, Utc};
+use log::debug;
 use lib_core::ctx::Ctx;
 use lib_core::model::ModelManager;
+use lib_core::model::schedule::{ScheduleBmc, ScheduleForCreate};
 use lib_core::model::user::{User, UserBmc, UserFilter, UserForCreate, UserForUpdate, UserForUpdatePwd};
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsIdedString, ParamsList};
+use crate::Error::UserNotAdmin;
 use crate::Result;
 use crate::router::RpcRouter;
 use crate::rpc_router;
@@ -20,6 +24,8 @@ pub fn rpc_router() -> RpcRouter {
         check_duplicate_username,
         user_checkin,
         user_checkout,
+        count_users_by_department,
+        users_by_department,
     )
 }
 
@@ -28,17 +34,28 @@ pub async fn create_user(
     mm: ModelManager,
     params: ParamsForCreate<UserForCreate>,
 ) -> Result<User> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForCreate { data } = params;
 
     let id = UserBmc::create(&ctx, &mm, data.clone()).await?;
     let pwd = data.pwd;
     UserBmc::update_pwd(&ctx, &mm, id, &pwd).await?;
     let user = UserBmc::get(&ctx, &mm, id).await?;
+    
+    let current_year = Utc::now().year();
 
+    let schedule = ScheduleForCreate {
+        user_id: Some(id),
+        group_id: None,
+        course: current_year,
+    };
+    ScheduleBmc::create(&ctx, &mm, schedule).await?;
+    
     Ok(user)
 }
 
 pub async fn get_user(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<User> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
 
     let user = UserBmc::get(&ctx, &mm, id).await?;
@@ -51,6 +68,7 @@ pub async fn list_users(
     mm: ModelManager,
     params: ParamsList<UserFilter>,
 ) -> Result<Vec<User>> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let users = UserBmc::list(&ctx, &mm, params.filters, params.list_options).await?;
 
     Ok(users)
@@ -61,6 +79,7 @@ pub async fn update_user(
     mm: ModelManager,
     params: ParamsForUpdate<UserForUpdate>,
 ) -> Result<User> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForUpdate { id, data } = params;
 
     UserBmc::update(&ctx, &mm, id, data.clone()).await?;
@@ -104,12 +123,24 @@ pub async fn update_user_pwd(
     mm: ModelManager,
     params: ParamsForUpdate<UserForUpdatePwd>,
 ) -> Result<User> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForUpdate { id, data } = params;
 
     let user_for_update = UserForUpdate {
-        username: data.username.clone(),
-        isadmin: data.isadmin,
+        username: data.username,
+        is_admin: data.is_admin,
+        active: data.active,
+        department_id: data.department_id,
+        last_checkin: data.last_checkin,
+        last_checkout: data.last_checkout,
+        in_center: data.in_center,
+        substituting_id: data.substituting_id,
+        substitutions: data.substitutions
     };
+
+    if data.department_id.is_some(){
+        debug!("Departamento: {}", data.department_id.unwrap())
+    }
 
     UserBmc::update(&ctx, &mm, id, user_for_update).await?;
     let pwd = data.pwd;
@@ -122,6 +153,7 @@ pub async fn update_user_pwd(
 }
 
 pub async fn delete_user(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<User> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
 
     let user = UserBmc::get(&ctx, &mm, id).await?;
@@ -137,4 +169,25 @@ pub async fn check_duplicate_username(
 ) -> Result<bool> {
     let user: Option<User> = UserBmc::check_username(&ctx, &mm, &params.data).await?;
     Ok(user.is_some())
+}
+
+
+pub async fn count_users_by_department(
+    ctx: Ctx,
+    mm: ModelManager,
+    params: ParamsIded,
+) -> Result<i64> {
+    let ParamsIded { id } = params;
+    let teacher_number = UserBmc::count_users_by_department(&ctx, &mm, id).await?;
+    Ok(teacher_number)
+}
+
+pub async fn users_by_department(
+    ctx: Ctx,
+    mm: ModelManager,
+    params: ParamsIded,
+) -> Result<Vec<User>> {
+    let ParamsIded { id } = params;
+    let teacher_number = UserBmc::users_by_department(&ctx, &mm, id).await?;
+    Ok(teacher_number)
 }

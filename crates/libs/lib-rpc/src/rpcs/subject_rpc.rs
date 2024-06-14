@@ -3,6 +3,7 @@ use lib_core::model::ModelManager;
 use lib_core::model::subject::{Subject, SubjectBmc, SubjectFilter, SubjectForCreate, SubjectForUpdate};
 
 use crate::{ParamsForCreate, ParamsForUpdate, ParamsIded, ParamsList};
+use crate::Error::UserNotAdmin;
 use crate::Result;
 use crate::router::RpcRouter;
 use crate::rpc_router;
@@ -23,6 +24,7 @@ pub async fn create_subject(
     mm: ModelManager,
     params: ParamsForCreate<SubjectForCreate>,
 ) -> Result<Subject> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForCreate { data } = params;
 
     let id = SubjectBmc::create(&ctx, &mm, data).await?;
@@ -32,6 +34,7 @@ pub async fn create_subject(
 }
 
 pub async fn get_subject(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<Subject> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
 
     let subject = SubjectBmc::get(&ctx, &mm, id).await?;
@@ -44,6 +47,7 @@ pub async fn list_subjects(
     mm: ModelManager,
     params: ParamsList<SubjectFilter>,
 ) -> Result<Vec<Subject>> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let subjects = SubjectBmc::list(&ctx, &mm, params.filters, params.list_options).await?;
 
     Ok(subjects)
@@ -54,6 +58,7 @@ pub async fn update_subject(
     mm: ModelManager,
     params: ParamsForUpdate<SubjectForUpdate>,
 ) -> Result<Subject> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsForUpdate { id, data } = params;
 
     SubjectBmc::update(&ctx, &mm, id, data).await?;
@@ -64,6 +69,7 @@ pub async fn update_subject(
 }
 
 pub async fn delete_subject(ctx: Ctx, mm: ModelManager, params: ParamsIded) -> Result<Subject> {
+    if !&ctx.admin() { return Err(UserNotAdmin); }
     let ParamsIded { id } = params;
 
     let subject = SubjectBmc::get(&ctx, &mm, id).await?;

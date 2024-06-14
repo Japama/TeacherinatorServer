@@ -39,7 +39,7 @@ async fn api_login_handler(
         .await?
         .ok_or(Error::LoginFailUsernameNotFound)?;
     let user_id = user.id;
-    let is_admin = user.isadmin;
+    let is_admin = user.is_admin;
 
     // -- Validate the password.
     let Some(pwd) = user.pwd else {

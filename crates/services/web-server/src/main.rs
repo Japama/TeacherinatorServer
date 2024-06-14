@@ -55,7 +55,7 @@ fn iniciar_programador_tareas() {
     });
 
     // Programa la tarea recurrente para que se ejecute cada 24 horas
-    scheduler.every(1.minutes()).run(move || {
+    scheduler.every(10.seconds()).run(move || {
         let rt = tokio::runtime::Runtime::new().unwrap();
         rt.block_on(async {
             println!("Ejecutando tarea diaria...");
@@ -74,7 +74,7 @@ fn iniciar_programador_tareas() {
     let _thread_handle = thread::spawn(move || {
         loop {
             scheduler.run_pending();
-            thread::sleep(StdDuration::from_secs(60));
+            thread::sleep(StdDuration::from_secs(10));
         }
     });
 }
