@@ -14,7 +14,8 @@ pub fn rpc_router() -> RpcRouter {
         get_classroom,
         list_classrooms,
         update_classroom,
-        delete_classroom,
+        delete_classroom,        
+        count_classroom_by_classroom_type,
     )
 }
 
@@ -70,4 +71,14 @@ pub async fn delete_classroom(ctx: Ctx, mm: ModelManager, params: ParamsIded) ->
     ClassroomBmc::delete(&ctx, &mm, id).await?;
 
     Ok(classroom)
+}
+
+pub async fn count_classroom_by_classroom_type(
+    ctx: Ctx,
+    mm: ModelManager,
+    params: ParamsIded,
+) -> Result<i64> {
+    let ParamsIded { id } = params;
+    let classroom_number = ClassroomBmc::count_classrooms_by_classroom_type(&ctx, &mm, id).await?;
+    Ok(classroom_number)
 }
