@@ -5,6 +5,8 @@ use tokio::sync::OnceCell;
 use tracing::info;
 
 use crate::ctx::Ctx;
+use crate::model::building::{BuildingBmc, BuildingForCreate};
+use crate::model::classroom_type::{ClassroomTypeBmc, ClassroomTypeForCreate};
 use crate::model::{self, ModelManager};
 use crate::model::center_schedule_hour::{CenterScheduleHourBmc, CenterScheduleHourForCreate};
 use crate::model::classroom::{ClassroomBmc, ClassroomForCreate};
@@ -104,12 +106,12 @@ pub async fn seed_group(ctx: &Ctx, mm: &ModelManager, letter: &str, course: i32,
 }
 
 
-pub async fn seed_classroom(ctx: &Ctx, mm: &ModelManager, building: &str, floor: i32, number: i32, name: &str, type_c: i32, description: &str) -> model::Result<i64> {
+pub async fn seed_classroom(ctx: &Ctx, mm: &ModelManager, building: i64, floor: i32, number: i32, name: &str, type_c: i64, description: &str) -> model::Result<i64> {
     ClassroomBmc::create(
         ctx,
         mm,
         ClassroomForCreate {
-            building: building.to_string(),
+            building,
             floor,
             number,
             name: name.to_string(),
@@ -162,6 +164,30 @@ pub async fn seed_center_schedule_hour(ctx: &Ctx, mm: &ModelManager, n_hour: i32
             n_hour,
             start_time,
             end_time,
+        },
+    )
+        .await
+}
+
+// Function to seed building
+pub async fn seed_building(ctx: &Ctx, mm: &ModelManager, building_name: &str) -> model::Result<i64> {
+    BuildingBmc::create(
+        ctx,
+        mm,
+        BuildingForCreate {
+            building_name: building_name.to_string(),
+        },
+    )
+        .await
+}
+
+// Function to seed classroom type
+pub async fn seed_classroom_type(ctx: &Ctx, mm: &ModelManager, type_name: &str) -> model::Result<i64> {
+    ClassroomTypeBmc::create(
+        ctx,
+        mm,
+        ClassroomTypeForCreate {
+            type_name: type_name.to_string(),
         },
     )
         .await

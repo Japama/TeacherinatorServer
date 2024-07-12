@@ -72,9 +72,26 @@ VALUES (1, 1, 2024, 'A', 'profesor2', 0, now(), 0, now());
 INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
 VALUES (1, 1, 2024, 'B', 'profesor3', 0, now(), 0, now());
 
+-- Building
+INSERT INTO "buildings" (building_name, cid, ctime, mid, mtime)
+VALUES ('Edificio principal', 0, now(), 0, now());
+
+-- ClassroomType
+INSERT INTO "classroom_types" (type_name, cid, ctime, mid, mtime)
+VALUES ('Taller', 0, now(), 0, now());
+INSERT INTO "classroom_types" (type_name, cid, ctime, mid, mtime)
+VALUES ('Aula de informática', 0, now(), 0, now());
+INSERT INTO "classroom_types" (type_name, cid, ctime, mid, mtime)
+VALUES ('Aula de música', 0, now(), 0, now());
+INSERT INTO "classroom_types" (type_name, cid, ctime, mid, mtime)
+VALUES ('Laboratorio', 0, now(), 0, now());
+INSERT INTO "classroom_types" (type_name, cid, ctime, mid, mtime)
+VALUES ('Otros', 0, now(), 0, now());
+
+
 -- Classroom
 INSERT INTO "classrooms" (building, floor, number, name, type_c, description, cid, ctime, mid, mtime)
-VALUES ('Edificio1', 0, 1, 'Sala 1', 0, 'Habitación normal', 0, now(), 0, now());
+VALUES (1000, 0, 1, 'Sala 1', 1000, 'Habitación normal', 0, now(), 0, now());
 
 
 -- Insertar datos en la tabla schedules
