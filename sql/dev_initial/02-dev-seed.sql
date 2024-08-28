@@ -38,7 +38,7 @@ VALUES ('profesor3', true, 1003, 0, now(), 0, now());
 INSERT INTO "users" (username, active, department_id, cid, ctime, mid, mtime)
 VALUES ('profesor4', true, 1004, 0, now(), 0, now());
 INSERT INTO "users" (username, is_admin, active, department_id, cid, ctime, mid, mtime)
-VALUES ('secretaria1', true, true, null, 0, now(), 0, now());
+VALUES ('secretaria1', true, true, 1, 0, now(), 0, now());
 
 -- Subjects
 INSERT INTO "subjects" (name, department_id, is_guard, is_complementary, cid, ctime, mid, mtime)
@@ -67,10 +67,42 @@ INSERT INTO "subjects" (name, department_id, is_guard, is_complementary, cid, ct
 VALUES ('Atención a padres', 1000, false, true, 0, now(), 0, now());
 
 -- Groups
+-- 1º ESO
 INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
 VALUES (1, 1, 2024, 'A', 'profesor2', 0, now(), 0, now());
 INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
 VALUES (1, 1, 2024, 'B', 'profesor3', 0, now(), 0, now());
+
+-- 2º ESO
+INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
+VALUES (2, 1, 2024, 'A', 'profesor2', 0, now(), 0, now());
+INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
+VALUES (2, 1, 2024, 'B', 'profesor3', 0, now(), 0, now());
+
+-- 3º ESO
+INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
+VALUES (3, 1, 2024, 'A', 'profesor2', 0, now(), 0, now());
+INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
+VALUES (3, 1, 2024, 'B', 'profesor3', 0, now(), 0, now());
+
+-- 4º ESO
+INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
+VALUES (4, 1, 2024, 'A', 'profesor2', 0, now(), 0, now());
+INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
+VALUES (4, 1, 2024, 'B', 'profesor3', 0, now(), 0, now());
+
+-- 1º Bachiller
+INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
+VALUES (1, 2, 2024, 'A', 'profesor2', 0, now(), 0, now());
+INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
+VALUES (1, 2, 2024, 'B', 'profesor3', 0, now(), 0, now());
+
+-- 2º Bachiller
+INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
+VALUES (2, 2, 2024, 'A', 'profesor2', 0, now(), 0, now());
+INSERT INTO "groups" (course, stage, year, letter, tutor_name, cid, ctime, mid, mtime)
+VALUES (2, 2, 2024, 'B', 'profesor3', 0, now(), 0, now());
+
 
 -- Building
 INSERT INTO "buildings" (building_name, cid, ctime, mid, mtime)
@@ -101,6 +133,12 @@ INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
 VALUES (1001, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
 INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
 VALUES (1002, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
+INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
+VALUES (1003, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
+INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
+VALUES (1004, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
+INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
+VALUES (1005, null, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
 INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)
 VALUES (null, 1000, 2024, 1001, CURRENT_TIMESTAMP, 1001, CURRENT_TIMESTAMP);
 INSERT INTO schedules (user_id, group_id, course, cid, ctime, mid, mtime)

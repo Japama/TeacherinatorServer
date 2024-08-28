@@ -68,8 +68,8 @@ CREATE TABLE "groups"
     course     int                      NOT NULL, -- 1º, 2º
     stage      int                      NOT NULL, -- ESO, BACHILLER, FP
     year       int                      NOT NULL, -- 2024/2025
-    letter     varchar(20)              NOT NULL, -- A, B, C
-    tutor_name varchar(128)             NOT NULL,
+    letter     varchar(20), -- A, B, C
+    tutor_name varchar(128),
 
     -- Timestamps
     cid        bigint                   NOT NULL,
@@ -156,6 +156,7 @@ CREATE TABLE schedules_2022 PARTITION OF schedules FOR VALUES FROM (2022) TO (20
 CREATE TABLE schedules_2023 PARTITION OF schedules FOR VALUES FROM (2023) TO (2024);
 CREATE TABLE schedules_2024 PARTITION OF schedules FOR VALUES FROM (2024) TO (2025);
 CREATE TABLE schedules_2025 PARTITION OF schedules FOR VALUES FROM (2025) TO (2026);
+CREATE TABLE schedules_2026 PARTITION OF schedules FOR VALUES FROM (2026) TO (2027);
 
 -- Schedule_hora
 CREATE TABLE schedule_hours
@@ -200,4 +201,5 @@ CREATE TABLE schedule_hours_2022 PARTITION OF schedule_hours FOR VALUES FROM (20
 CREATE TABLE schedule_hours_2023 PARTITION OF schedule_hours FOR VALUES FROM (2023) TO (2024);
 CREATE TABLE schedule_hours_2024 PARTITION OF schedule_hours FOR VALUES FROM (2024) TO (2025);
 CREATE TABLE schedule_hours_2025 PARTITION OF schedule_hours FOR VALUES FROM (2025) TO (2026);
+CREATE TABLE schedule_hours_2026 PARTITION OF schedule_hours FOR VALUES FROM (2026) TO (2027);
 
