@@ -1,19 +1,17 @@
-use chrono::{ Timelike };
 use modql::field::{Fields, HasFields};
 use modql::filter::{ListOptions, OpValsInt32};
-use sea_query::{Iden};
-use sea_query_binder::SqlxBinder;
+use sea_query::Iden;
 use serde::Serialize;
 use serde_with::serde_as;
 use sqlx::postgres::PgRow;
-use sqlx::{Executor, FromRow};
+use sqlx::FromRow;
 use time::{OffsetDateTime, Time};
 
 use crate::ctx::Ctx;
 use crate::model::base::PostgresDbBmc;
 use crate::model::center_schedule_hour::CenterScheduleHourBmc;
 use crate::model::schedule_hour::{ScheduleHourBmc, ScheduleHourFilter, ScheduleHourForUpdate};
-use crate::model::teacher::{TeacherBmc};
+use crate::model::teacher::TeacherBmc;
 use crate::model::user::UserBmc;
 use crate::model::ModelManager;
 use crate::model::Result;
@@ -30,13 +28,6 @@ pub struct Control {
 pub trait ControlBy: HasFields + for<'r> FromRow<'r, PgRow> + Unpin + Send {}
 
 impl ControlBy for Control {}
-
-#[derive(Iden)]
-enum ControlIden {
-    Id,
-    Controlname,
-    Pwd,
-}
 
 // endregion: --- Control Types
 
@@ -142,30 +133,7 @@ impl ControlBmc {
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
-    use anyhow::{Context, Result};
-    use serde_json::json;
-    use serial_test::serial;
-
-    use crate::_dev_utils;
-    use crate::ctx::Ctx;
-
-    #[serial]
-    #[tokio::test]
-    async fn test_first_ok_admin() -> Result<()> {
-        // -- Setup & Fixtures
-        let mm = _dev_utils::init_test().await;
-        let ctx = Ctx::root_ctx();
-        let fx_controlname = "admin";
-
-        // -- Exec
-        // let control: Control = ControlBmc::first_by_controlname(&ctx, &mm, fx_controlname)
-        //     .await?
-        //     .context("Should have control 'admin'")?;
-
-        // -- Check
-        // assert_eq!(control.controlname, fx_controlname);
-
-        Ok(())
-    }
+ 
+ 
 }
 // endregion: --- Tests

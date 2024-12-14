@@ -1,6 +1,5 @@
 // region:    --- Modules
 
-use time::Time;
 use tokio::sync::OnceCell;
 use tracing::info;
 
@@ -148,7 +147,7 @@ pub async fn seed_schedule(ctx: &Ctx, mm: &ModelManager, course: i32, teacher_id
 }
 
 
-pub async fn seed_schedule_hour(ctx: &Ctx, mm: &ModelManager, schedule_id: i64, subject_name: &str, classroom_name: &str, week_day: i32, n_hour: i32, start_time: Time, end_time: Time, course: i32 )  -> model::Result<i64> {
+pub async fn seed_schedule_hour(ctx: &Ctx, mm: &ModelManager, schedule_id: i64, subject_name: &str, classroom_name: &str, week_day: i32, n_hour: i32, course: i32 )  -> model::Result<i64> {
     ScheduleHourBmc::create(
         ctx,
         mm,
