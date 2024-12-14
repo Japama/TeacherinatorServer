@@ -1,4 +1,3 @@
-use chrono::{Timelike};
 use modql::field::{Fields, HasFields};
 use modql::filter::{FilterNodes, ListOptions, OpValsInt64, OpValsValue};
 use serde::{Deserialize, Serialize};
@@ -137,7 +136,7 @@ mod tests {
     use crate::ctx::Ctx;
     use crate::model::department::DepartmentBmc;
     use crate::model::schedule::ScheduleBmc;
-    use crate::model::schedule_hour::{CenterScheduleHour, CenterScheduleHourBmc, CenterScheduleHourForCreate, CenterScheduleHourForUpdate};
+    use crate::model::center_schedule_hour::{CenterScheduleHour, CenterScheduleHourBmc, CenterScheduleHourForCreate, CenterScheduleHourForUpdate};
     use crate::model::subject::SubjectBmc;
     use crate::model::teacher::TeacherBmc;
     use crate::model::user::UserBmc;
@@ -150,7 +149,7 @@ mod tests {
         let ctx = Ctx::root_ctx();
         let fx_subject_name = "subject_create_ok";
         let fx_week_day = 1; // lunes
-        let fx_n_hour = 1; // 08:00-08:50
+        let fx_n_hour = 111; // 08:00-08:50
         let fx_start_time = Time::MIDNIGHT;
         let fx_start_time = fx_start_time.replace_hour(8)?;
         let fx_start_time = fx_start_time.replace_minute(0)?;
@@ -159,20 +158,17 @@ mod tests {
         let fx_end_time = fx_end_time.replace_minute(50)?;
         let fx_course = 2024;
 
-        let fx_username = "Prueba_schedule_hour_create_ok";
-        let fx_teacher_name = "Profe_schedule_hour_create_ok";
-        let fx_department_name = "Departamento_schedule_hour_create_ok";
+        let fx_username = "Prueba_center_schedule_hour_create_ok";
+        let fx_department_name = "Departamento_center_schedule_hour_create_ok";
 
         let fx_user_id = seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
         let fx_subject_id = seed_subject(&ctx, &mm, fx_subject_name, fx_department_id, false, false).await?;
-        let fx_teacher_id = seed_teacher(&ctx, &mm, fx_teacher_name, fx_department_id ,fx_user_id).await?;
+        let fx_teacher_id = seed_teacher(&ctx, &mm, fx_department_id ,fx_user_id).await?;
         let fx_schedule_id= seed_schedule(&ctx, &mm, fx_course, fx_teacher_id, -1).await?;
 
         // -- Exec
         let schedule_hour_c = CenterScheduleHourForCreate {
-            schedule_id: fx_schedule_id,
-            subject_id: fx_subject_id,
             week_day: fx_week_day,
             n_hour: fx_n_hour,
             start_time: fx_start_time,
@@ -203,10 +199,10 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_subject_name = "subject_create_ok";
+        let fx_subject_name = "subject_uodate_ok";
         let fx_week_day = 1; // Lunes
-        let fx_week_day_new= 2; // Martes
-        let fx_n_hour = 1; // 08:00-08:50
+        let fx_week_day_new= 3; // Martes
+        let fx_n_hour = 144; // 08:00-08:50
         let fx_start_time = Time::MIDNIGHT;
         let fx_start_time = fx_start_time.replace_hour(8)?;
         let fx_start_time = fx_start_time.replace_minute(0)?;
@@ -215,16 +211,16 @@ mod tests {
         let fx_end_time = fx_end_time.replace_minute(50)?;
         let fx_course = 2024;
 
-        let fx_username = "Prueba_schedule_hour_create_ok";
-        let fx_teacher_name = "Profe_schedule_hour_create_ok";
-        let fx_department_name = "Departamento_schedule_hour_create_ok";
+        let fx_username = "Prueba_scenter_chedule_hour_test_update_ok_ok";
+        let fx_department_name = "Departamento_center_schedule_hour_test_update_ok_ok";
+        let fx_classroom_name = "Clase 12";
 
         let fx_user_id = seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
         let fx_subject_id = seed_subject(&ctx, &mm, fx_subject_name, fx_department_id, false, false).await?;
-        let fx_teacher_id = seed_teacher(&ctx, &mm, fx_teacher_name, fx_department_id ,fx_user_id).await?;
+        let fx_teacher_id = seed_teacher(&ctx, &mm, fx_department_id ,fx_user_id).await?;
         let fx_schedule_id= seed_schedule(&ctx, &mm, fx_course, fx_teacher_id, -1).await?;
-        let fx_schedule_hour_id = _dev_utils::seed_schedule_hour(&ctx, &mm, fx_schedule_id, fx_subject_id, fx_week_day, fx_n_hour, fx_start_time, fx_end_time, fx_course).await?;
+        let fx_schedule_hour_id = _dev_utils::seed_schedule_hour(&ctx, &mm, fx_schedule_id, fx_subject_name, fx_classroom_name, fx_week_day, fx_n_hour, fx_course).await?;
 
         // -- Exec
         CenterScheduleHourBmc::update(
@@ -232,8 +228,6 @@ mod tests {
             &mm,
             fx_schedule_hour_id,
             CenterScheduleHourForUpdate {
-                schedule_id: fx_schedule_id,
-                subject_id: fx_subject_id,
                 week_day: fx_week_day_new,
                 course: fx_course,
                 start_time: fx_start_time,
@@ -267,26 +261,20 @@ mod tests {
         let fx_subject_name = "subject_list_by_course_ok";
         let fx_week_day = 1; // Lunes
         let fx_week_day_2= 2; // Martes
-        let fx_n_hour = 1; // 08:00-08:50
-        let fx_start_time = Time::MIDNIGHT;
-        let fx_start_time = fx_start_time.replace_hour(8)?;
-        let fx_start_time = fx_start_time.replace_minute(0)?;
-        let fx_end_time = Time::MIDNIGHT;
-        let fx_end_time = fx_end_time.replace_hour(8)?;
-        let fx_end_time = fx_end_time.replace_minute(50)?;
+        let fx_n_hour = 151; // 08:00-08:50
         let fx_course = 2024;
 
-        let fx_username = "Prueba_list_by_course_ok";
-        let fx_teacher_name = "Profe_list_by_course_ok";
-        let fx_department_name = "Departamento_list_by_course_ok";
+        let fx_username = "Prueba_center_list_by_course_ok";
+        let fx_department_name = "Departamento_center_list_by_course_ok";
+        let fx_classroom_name = "Clase 22";
 
         let fx_user_id = seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = seed_department(&ctx, &mm, fx_department_name).await?;
         let fx_subject_id = seed_subject(&ctx, &mm, fx_subject_name, fx_department_id, false, false).await?;
-        let fx_teacher_id = seed_teacher(&ctx, &mm, fx_teacher_name, fx_department_id ,fx_user_id).await?;
+        let fx_teacher_id = seed_teacher(&ctx, &mm, fx_department_id ,fx_user_id).await?;
         let fx_schedule_id= seed_schedule(&ctx, &mm, fx_course, fx_teacher_id, -1).await?;
-        let fx_schedule_hour_id_01 = _dev_utils::seed_schedule_hour(&ctx, &mm, fx_schedule_id, fx_subject_id, fx_week_day, fx_n_hour, fx_start_time, fx_end_time, fx_course).await?;
-        let fx_schedule_hour_id_02 = _dev_utils::seed_schedule_hour(&ctx, &mm, fx_schedule_id, fx_subject_id, fx_week_day_2, fx_n_hour, fx_start_time, fx_end_time, fx_course).await?;
+        let fx_schedule_hour_id_01 = _dev_utils::seed_schedule_hour(&ctx, &mm, fx_schedule_id, fx_subject_name, fx_classroom_name, fx_week_day, fx_n_hour, fx_course).await?;
+        let fx_schedule_hour_id_02 = _dev_utils::seed_schedule_hour(&ctx, &mm, fx_schedule_id, fx_subject_name, fx_classroom_name, fx_week_day_2, fx_n_hour, fx_course).await?;
 
         // -- Exec
         let filter_json = json!({
@@ -300,7 +288,7 @@ mod tests {
         // let schedule_hours: Vec<String> = schedule_hours.into_iter().map(|s| s.course.to_string()).collect();
         // let fx_schedule_hours: Vec<String> = fx_courses.into_iter().map(|c| c.to_string()).collect();
     
-        assert_eq!(schedule_hours.len(), 2);
+        assert_eq!(schedule_hours.len(), 48);
         // assert_eq!(&schedule_hours, &fx_schedule_hours);
     
         // -- Cleanup

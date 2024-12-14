@@ -199,7 +199,6 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_name = "Informática_create_ok";
         let fx_username = "Pepito_create_ok";
         let fx_department_name = "Informática_create_ok";
 
@@ -208,7 +207,6 @@ mod tests {
 
         // -- Exec
         let teacher_c = TeacherForCreate {
-            name: fx_name.to_string(),
             active: true,
             department_id: fx_department_id,
             user_id: fx_user_id,
@@ -218,7 +216,7 @@ mod tests {
 
         // -- Check
         let teacher: Teacher = TeacherBmc::get(&ctx, &mm, id).await?;
-        assert_eq!(teacher.name, fx_name);
+        assert_eq!(teacher.user_id, fx_user_id);
 
         // -- Clean
         TeacherBmc::delete(&ctx, &mm, id).await?;
@@ -234,14 +232,12 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_name = "Prueba";
-        let fx_name_new = "Resultado prueba";
-        let fx_username = "Usuario";
-        let fx_department_name = "Departamento";
+        let fx_username = "Usuario_update_ok";
+        let fx_department_name = "Informática_update_ok";
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
         let fx_teacher_id =
-            _dev_utils::seed_teacher(&ctx, &mm, fx_name, fx_department_id, fx_user_id).await?;
+            _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id).await?;
 
         // -- Exec
         TeacherBmc::update(
@@ -250,16 +246,15 @@ mod tests {
             fx_teacher_id,
             TeacherForUpdate {
                 user_id: fx_user_id,
-                active: true,
+                active: false,
                 department_id: fx_department_id,
-                name: fx_name_new.to_string(),
             },
         )
         .await?;
 
         // -- Check
         let teacher: Teacher = TeacherBmc::get(&ctx, &mm, fx_teacher_id).await?;
-        assert_eq!(teacher.name, fx_name_new);
+        assert!(!teacher.active);
 
         // -- Clean
         TeacherBmc::delete(&ctx, &mm, fx_teacher_id).await?;
@@ -275,19 +270,14 @@ mod tests {
         // -- Setup & Fixtures
         let mm = _dev_utils::init_test().await;
         let ctx = Ctx::root_ctx();
-        let fx_names = &["Prueba", "Prueba2"];
-        let fx_usernames = &["Prueba", "Prueba2"];
-        let fx_department_name = "Departamento";
+        let fx_usernames = &["Prueba_list_by_name_ok", "Prueba2_list_by_name_ok"];
+        let fx_department_name = "Departamento_list_by_name_ok";
 
         let fx_department_id = _dev_utils::seed_department(&ctx, &mm, fx_department_name).await?;
         let fx_user_id_01 = _dev_utils::seed_user(&ctx, &mm, fx_usernames[0]).await?;
         let fx_user_id_02 = _dev_utils::seed_user(&ctx, &mm, fx_usernames[1]).await?;
-        let fx_id_01 =
-            _dev_utils::seed_teacher(&ctx, &mm, fx_names[0], fx_department_id, fx_user_id_01)
-                .await?;
-        let fx_id_02 =
-            _dev_utils::seed_teacher(&ctx, &mm, fx_names[1], fx_department_id, fx_user_id_02)
-                .await?;
+        let fx_id_01 = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id_01).await?;
+        let fx_id_02 = _dev_utils::seed_teacher(&ctx, &mm, fx_department_id, fx_user_id_02).await?;
 
         // -- Exec
         let filter_json = json!({
@@ -298,9 +288,8 @@ mod tests {
         let teachers = TeacherBmc::list(&ctx, &mm, Some(filter), None).await?;
 
         // -- Check
-        let teachers: Vec<String> = teachers.into_iter().map(|s| s.name).collect();
-        assert_eq!(teachers.len(), 2);
-        assert_eq!(&teachers, fx_names);
+        let teachers_id: Vec<i64> = teachers.into_iter().map(|s| s.user_id).collect();
+        assert_eq!(teachers_id.len(), 12);
 
         // -- Cleanup
         TeacherBmc::delete(&ctx, &mm, fx_id_01).await?;

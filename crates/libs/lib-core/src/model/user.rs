@@ -355,8 +355,10 @@ mod tests {
         let ctx = Ctx::root_ctx();
         let fx_username = "Juanba test update";
         let fx_username_new = "Juanba test update Petao";
+        let fx_is_admin = false;
         let fx_user_id = _dev_utils::seed_user(&ctx, &mm, fx_username).await?;
 
+        
         // -- Exec
         UserBmc::update(
             &ctx,
@@ -364,6 +366,7 @@ mod tests {
             fx_user_id,
             UserForUpdate {
                 username: fx_username_new.to_string(),
+                isadmin: fx_is_admin
             },
         )
         .await?;
