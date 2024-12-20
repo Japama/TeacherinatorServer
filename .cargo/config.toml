@@ -17,7 +17,7 @@ RUST_LOG = "teacherinator_web_server=debug,lib_core=debug,lib_auth=debug,lib_uti
 # e.g., "welcome" type of passwords.
 # i.e., Encription not needed.
 
-SERVICE_DB_URL = "postgres://postgres:japama@127.0.0.1/teacherinator"
+SERVICE_DB_URL = "postgres://postgres:Mediomel€91@servidorvalero.ddns.net:5432/teacherinator"
 
 SERVICE_MONGO_DB_URL="mongodb://127.0.0.1:27017"
 #SERVICE_MONGO_DB_URL="mongodb+srv://jbvc91:ICy89kEfX5PaP3ij@psg.jodkz9a.mongodb.net/?retryWrites=true&w=majority"

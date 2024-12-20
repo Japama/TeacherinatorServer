@@ -14,8 +14,8 @@ type Db = Pool<Postgres>;
 
 // NOTE: Hardcode to prevent deployed system db update.
 //  POSTGRES
-const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:japama@127.0.0.1/postgres";
-const PG_DEV_APP_URL: &str = "postgres://postgres:japama@127.0.0.1/teacherinator";
+const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:Mediomel€91@servidorvalero.ddns.net:5432/postgres";
+const PG_DEV_APP_URL: &str = "postgres://postgres:Mediomel€91@servidorvalero.ddns.net:5432/teacherinator";
 
 // sql files
 const SQL_RECREATE_DB_FILE_NAME: &str = "00-recreate-db.sql";
