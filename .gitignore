@@ -15,3 +15,7 @@ Cargo.lock
 
 # IntelliJ folders
 .idea
+
+.env
+
+.cargo/config.toml

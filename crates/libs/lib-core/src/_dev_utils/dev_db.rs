@@ -5,6 +5,7 @@ use std::time::Duration;
 use sqlx::{Pool, Postgres};
 use sqlx::postgres::PgPoolOptions;
 use tracing::info;
+use dotenv::dotenv;
 
 use crate::ctx::Ctx;
 use crate::model::ModelManager;
@@ -14,8 +15,8 @@ type Db = Pool<Postgres>;
 
 // NOTE: Hardcode to prevent deployed system db update.
 //  POSTGRES
-const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:Mediomel€91@servidorvalero.ddns.net:5432/postgres";
-const PG_DEV_APP_URL: &str = "postgres://postgres:Mediomel€91@servidorvalero.ddns.net:5432/teacherinator";
+const PG_DEV_POSTGRES_URL: &str = "PG_DEV_POSTGRES_URL";
+const PG_DEV_APP_URL: &str = "PG_DEV_APP_URL";
 
 // sql files
 const SQL_RECREATE_DB_FILE_NAME: &str = "00-recreate-db.sql";
@@ -24,6 +25,7 @@ const SQL_DIR: &str = "sql/dev_initial";
 const DEMO_PWD: &str = "welcome";
 
 pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
+    dotenv().ok();
     info!("{:<12} - init_dev_db()", "FOR-DEV-ONLY");
 
     // -- Get the sql_dir
@@ -42,7 +44,7 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
     // -- Create the app_db/app_user with the postgres user.
     {
         let sql_recreate_db_file = sql_dir.join(SQL_RECREATE_DB_FILE_NAME);
-        let root_db = new_db_pool(PG_DEV_POSTGRES_URL).await?;
+        let root_db = new_db_pool(&std::env::var(PG_DEV_POSTGRES_URL)?).await?;
         pexec(&root_db, &sql_recreate_db_file).await?;
 
     }
@@ -54,7 +56,7 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
     paths.sort();
 
     // -- SQL Execute each file.
-    let app_db = new_db_pool(PG_DEV_APP_URL).await?;
+    let app_db = new_db_pool(&std::env::var(PG_DEV_APP_URL)?).await?;
 
     for path in paths {
         let path_str = path.to_string_lossy();

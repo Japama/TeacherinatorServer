@@ -16,6 +16,7 @@ use tower_cookies::CookieManagerLayer;
 use tower_http::cors::CorsLayer;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
+use dotenv::dotenv;
 
 use config::web_config;
 use lib_core::_dev_utils;
@@ -78,6 +79,7 @@ fn iniciar_programador_tareas() {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    dotenv().ok();
     iniciar_programador_tareas();
     tracing_subscriber::fmt()
         .without_time() // For early local development.
@@ -96,19 +98,18 @@ async fn main() -> Result<()> {
     let routes_rpc =
     web::routes_rpc::routes(rpc_state).route_layer(middleware::from_fn(mw_ctx_require));
 
-    
     let origins = [
-        "http://127.0.0.1:3000".parse().unwrap(),
-        "http://192.168.3.201:3000".parse().unwrap(),
-        "http://servidorvalero.ddns.net:3000".parse().unwrap(),
+        std::env::var("ORIGIN_1").unwrap().parse().unwrap(),
+        std::env::var("ORIGIN_2").unwrap().parse().unwrap(),
+        std::env::var("ORIGIN_3").unwrap().parse().unwrap(),
     ];
-    
+
     let cors = CorsLayer::new()
         .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
         .allow_origin(origins) // Lista de orígenes permitidos
         .allow_credentials(true) // Permitir cookies
         .allow_headers([CONTENT_TYPE, ACCESS_CONTROL_ALLOW_ORIGIN]);
-    
+
     let routes_all = Router::new()
         .merge(routes_login::routes(mm.clone()))
         .nest("/api", routes_rpc)
@@ -118,7 +119,6 @@ async fn main() -> Result<()> {
         .layer(CookieManagerLayer::new())
         .layer(cors)
         .fallback_service(routes_static::serve_dir());
-    
 
     // region:    --- Start Server
     // Note: For this block, ok to unwrap.
